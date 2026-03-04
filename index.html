@@ -733,6 +733,7 @@ async function enterApp(){
   onSnapshot(doc(db, 'groups', groupId), snap => {
     if(snap.exists()) groupData = snap.data();
     renderGoal();
+    renderSubjectFilter(); // 科目変更を全員にリアルタイム反映
   });
 
   // メンバーデータをリアルタイム監視
@@ -1818,15 +1819,21 @@ window.applyBulkBaito = async function(){
   toast(`${count}日分のバイトを登録したよ！`);
 };
 // ===== 科目カスタム管理 =====
-const DEFAULT_SUBJECTS = ['数学','英語','国語','理科','社会','時間割'];
+const DEFAULT_SUBJECTS = ['時間割'];
 
 function getSubjects(){
-  const saved = localStorage.getItem('customSubjects');
-  return saved ? JSON.parse(saved) : [...DEFAULT_SUBJECTS];
+  // groupDataから取得（Firestore共有）
+  return groupData?.subjects || [...DEFAULT_SUBJECTS];
 }
-function saveSubjects(subjects){
-  localStorage.setItem('customSubjects', JSON.stringify(subjects));
+
+async function saveSubjects(subjects){
+  // Firestoreのグループデータに保存して全員に反映
+  const { doc: docRef, setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+  await setDoc(docRef(db, 'groups', groupId), { subjects }, { merge: true });
+  // ローカルのgroupDataも即時更新
+  groupData = { ...groupData, subjects };
 }
+
 function renderSubjectFilter(){
   const subjects = getSubjects();
   const filter = document.getElementById('subjectFilter');
@@ -1835,6 +1842,7 @@ function renderSubjectFilter(){
     subjects.map(s => `<div class="subject-chip" onclick="filterPhotos('${s}',this)">${s}</div>`).join('') +
     `<div class="subject-chip" onclick="openPhotoSubjectManager()" style="color:var(--accent2);border-color:var(--accent2);">＋編集</div>`;
 }
+
 function renderSubjectSelectChips(){
   const subjects = getSubjects();
   const chips = document.getElementById('subjectSelectChips');
@@ -1844,13 +1852,16 @@ function renderSubjectSelectChips(){
     `<button onclick="event.stopPropagation();removeSubject('${s}')" style="background:none;border:none;color:var(--sub);font-size:11px;cursor:pointer;margin-left:3px;">✕</button></div>`
   ).join('');
 }
-window.removeSubject = function(s){
+
+window.removeSubject = async function(s){
   const subjects = getSubjects().filter(x => x !== s);
-  saveSubjects(subjects);
+  await saveSubjects(subjects);
   renderSubjectSelectChips();
   renderSubjectFilter();
+  toast(`「${s}」を削除したよ`);
 };
-window.addNewSubject = function(){
+
+window.addNewSubject = async function(){
   const input = document.getElementById('newSubjectInput');
   const val = input.value.trim();
   if(!val){ toast('科目名を入力してね'); return; }
@@ -1858,12 +1869,13 @@ window.addNewSubject = function(){
   if(subjects.includes(val)){ toast('すでに追加済みだよ'); return; }
   if(subjects.length >= 20){ toast('科目は20個まで登録できるよ'); return; }
   subjects.push(val);
-  saveSubjects(subjects);
+  await saveSubjects(subjects);
   input.value = '';
   renderSubjectSelectChips();
   renderSubjectFilter();
   toast(`「${val}」を追加したよ！`);
 };
+
 window.openPhotoSubjectManager = function(){
   renderSubjectSelectChips();
   document.getElementById('newSubjectInput').value = '';
