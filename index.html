@@ -1507,21 +1507,31 @@ function checkFriendChanges(prevData, newData){
     const prev = prevData[mid] || {};
     const name = md.name;
 
-    // シフト登録検知
-    const prevBaitoCount = Object.keys(prev.baito||{}).length;
-    const newBaitoCount = Object.keys(md.baito||{}).length;
-    if(newBaitoCount > prevBaitoCount){
-      addNotice('shift', `${name}がバイトを登録したよ`, mid);
-      if(settings.shift) showLocalNotification('💰 シフト登録', `${name}がバイトを登録したよ！`, 'shift-'+mid);
-    }
+    // シフト登録検知（新しく追加された日付を特定）
+    const prevBaito = prev.baito || {};
+    const newBaito = md.baito || {};
+    Object.entries(newBaito).forEach(([dateStr, info]) => {
+      if(!prevBaito[dateStr]){
+        const d = new Date(dateStr+'T00:00:00');
+        const dateLabel = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+        const text = `${name}が${dateLabel} ${info.start}〜${info.end}のバイトを登録したよ`;
+        addNotice('shift', text, mid);
+        if(settings.shift) showLocalNotification('💰 シフト登録', text, 'shift-'+mid+'-'+dateStr);
+      }
+    });
 
-    // 予定登録検知
-    const prevEventCount = Object.keys(prev.events||{}).length;
-    const newEventCount = Object.keys(md.events||{}).length;
-    if(newEventCount > prevEventCount){
-      addNotice('event', `${name}が予定を登録したよ`, mid);
-      if(settings.event) showLocalNotification('📝 予定登録', `${name}が予定を登録したよ！`, 'event-'+mid);
-    }
+    // 予定登録検知（新しく追加された日付を特定）
+    const prevEvents = prev.events || {};
+    const newEvents = md.events || {};
+    Object.entries(newEvents).forEach(([dateStr, eventName]) => {
+      if(!prevEvents[dateStr]){
+        const d = new Date(dateStr+'T00:00:00');
+        const dateLabel = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+        const text = `${name}が${dateLabel}「${eventName}」を登録したよ`;
+        addNotice('event', text, mid);
+        if(settings.event) showLocalNotification('📝 予定登録', text, 'event-'+mid+'-'+dateStr);
+      }
+    });
   });
 }
 
