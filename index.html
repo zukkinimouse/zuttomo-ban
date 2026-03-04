@@ -641,7 +641,7 @@
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, serverTimestamp }
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, serverTimestamp, updateDoc, deleteField }
   from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
@@ -1013,8 +1013,7 @@ window.saveBaito = async function(){
   if(!start||!end){ toast('時間を入力してね'); return; }
 
   const mRef = doc(db, 'groups', groupId, 'members', uid);
-  const current = memberData[uid] || {};
-  const baito = { ...(current.baito || {}) };
+  const baito = { ...(memberData[uid]?.baito || {}) };
   baito[selectedDate] = { start, end, breakMin };
 
   // ローカルのmemberDataを即時更新してからrender
@@ -1027,15 +1026,14 @@ window.saveBaito = async function(){
       <button class="remove-btn" onclick="removeBaito()">✕</button>
     </div>`;
 
-  // Firestoreに非同期で保存
-  await setDoc(mRef, { baito }, { merge: true });
+  // フィールドパスで該当日だけを書き込み（他の日を上書きしない）
+  await updateDoc(mRef, { [`baito.${selectedDate}`]: { start, end, breakMin } });
   toast('バイトを登録したよ！');
 };
 
 window.removeBaito = async function(){
   const mRef = doc(db, 'groups', groupId, 'members', uid);
-  const current = memberData[uid] || {};
-  const baito = { ...(current.baito || {}) };
+  const baito = { ...(memberData[uid]?.baito || {}) };
   delete baito[selectedDate];
 
   // ローカルのmemberDataを即時更新してからrender
@@ -1045,8 +1043,8 @@ window.removeBaito = async function(){
   renderCalendar();
   renderSummary();
 
-  // Firestoreに非同期で保存
-  await setDoc(mRef, { baito }, { merge: true });
+  // deleteFieldで該当日だけを確実に削除
+  await updateDoc(mRef, { [`baito.${selectedDate}`]: deleteField() });
   toast('バイトを削除したよ');
 };
 
@@ -1812,7 +1810,13 @@ window.applyBulkBaito = async function(){
     }
   }
 
-  await setDoc(mRef, { baito }, { merge: true });
+  // フィールドパスで一括更新
+  const updates = {};
+  Object.entries(baito).forEach(([dateStr, val]) => {
+    updates[`baito.${dateStr}`] = val;
+  });
+  await updateDoc(mRef, updates);
+  memberData[uid] = { ...memberData[uid], baito: { ...(memberData[uid]?.baito || {}), ...baito } };
   closeBulkBaitoModal();
   renderCalendar();
   renderSummary();
