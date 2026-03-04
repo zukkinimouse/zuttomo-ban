@@ -73,23 +73,23 @@
     .month-title { font-size: 18px; font-weight: 900; color: var(--text); }
 
     /* カレンダー */
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
     .cal-dow { text-align: center; font-size: 10px; font-weight: 900; padding: 4px 0; color: var(--sub); }
     .cal-dow:first-child { color: #ff6b6b; }
     .cal-dow:last-child { color: #4d96ff; }
-    .cal-day { border-radius: 10px; padding: 4px 2px 5px; min-height: 56px; cursor: pointer; transition: 0.15s; position: relative; border: 1.5px solid transparent; }
+    .cal-day { border-radius: 8px; padding: 4px 2px 4px; min-height: 68px; cursor: pointer; transition: 0.15s; position: relative; border: 1.5px solid transparent; background: var(--card); }
     .cal-day:active { transform: scale(0.95); }
     .cal-day.today { border-color: var(--primary); background: var(--primary-light); }
-    .cal-day.other-month { opacity: 0.3; }
+    .cal-day.other-month { opacity: 0.25; background: transparent; }
     .cal-day.sunday .cal-date { color: #ff6b6b; }
     .cal-day.saturday .cal-date { color: #4d96ff; }
     .cal-day.holiday .cal-date { color: #ff6b6b; }
-    .cal-date { font-size: 12px; font-weight: 900; text-align: center; line-height: 1; }
-    .cal-badges { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
-    .cal-badge { font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 3px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cal-badge.baito { background: #ffe0e0; color: #ff6b6b; }
-    .cal-badge.event { background: #e8f4ff; color: #4d96ff; }
-    .cal-badge.friend-baito { background: #e8faf0; color: #2d9b5a; }
+    .cal-date { font-size: 12px; font-weight: 900; text-align: center; line-height: 1.2; }
+    .cal-badges { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; padding: 0 1px; }
+    .cal-badge { font-size: 7px; font-weight: 900; border-radius: 3px; padding: 1.5px 2px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+    .cal-badge.baito { background: #ffe0e0; color: #e03030; }
+    .cal-badge.event { background: #e8f4ff; color: #2563eb; }
+    .cal-badge.friends { background: #e8faf0; color: #16a34a; }
 
     /* 給料サマリー */
     .salary-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
@@ -170,6 +170,34 @@
     #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: #2d2d2d; color: #fff; border-radius: 20px; padding: 10px 20px; font-size: 13px; font-weight: 700; z-index: 500; opacity: 0; transition: 0.3s; pointer-events: none; white-space: nowrap; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* 曜日一括設定 */
+    .dow-chips { display: flex; gap: 6px; justify-content: center; margin: 12px 0; }
+    .dow-chip { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; color: var(--sub); }
+    .dow-chip.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .dow-chip.sun { color: #ff6b6b; }
+    .dow-chip.sat { color: #4d96ff; }
+    .dow-chip.sun.selected, .dow-chip.sat.selected { background: var(--primary); color: #fff; }
+
+    /* 予定共有トグル */
+    .countdown-section { margin-top: 14px; }
+    .countdown-list { display: flex; flex-direction: column; gap: 8px; }
+    .countdown-item { background: var(--card); border-radius: 12px; border: 1.5px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+    .countdown-days { font-size: 28px; font-weight: 900; color: var(--primary); min-width: 48px; text-align: center; line-height: 1; }
+    .countdown-days span { font-size: 11px; color: var(--sub); display: block; font-weight: 700; }
+    .countdown-info { flex: 1; }
+    .countdown-name { font-size: 13px; font-weight: 900; color: var(--text); }
+    .countdown-date { font-size: 11px; color: var(--sub); margin-top: 2px; }
+    .countdown-today { background: linear-gradient(135deg, var(--primary-light), #fff0e0); border-color: var(--primary); }
+    .cd-toggle-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 10px; padding: 10px 12px; margin-top: 8px; margin-bottom: 4px; }
+    .cd-toggle-label { font-size: 12px; font-weight: 900; color: var(--text); }
+    .wage-card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
+    .wage-card-title { font-size: 11px; font-weight: 900; color: var(--sub); letter-spacing: 1px; margin-bottom: 8px; }
+    .wage-card-body { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .wage-input-wrap { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 10px; flex: 1; min-width: 100px; }
+    .wage-input-wrap input { flex: 1; border: none; background: none; font-family: inherit; font-size: 16px; font-weight: 900; color: var(--text); outline: none; width: 70px; }
+    .wage-input-wrap span { font-size: 12px; color: var(--sub); font-weight: 700; white-space: nowrap; }
+    .shime-select { border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 10px; font-family: inherit; font-size: 12px; font-weight: 900; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+
     /* 板書写真 */
     .photo-upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 12px; }
     .photo-upload-area:active { background: var(--primary-light); border-color: var(--primary); }
@@ -243,10 +271,10 @@
 
 <!-- カレンダーページ -->
 <div id="calPage" class="page active">
-  <!-- 今月の目標 -->
-  <div class="goal-card" id="goalCard">
-    <div class="goal-label">📍 今月の目標</div>
-    <div class="goal-text" id="goalText">タップして目標を入力しよう！</div>
+  <!-- 今月の目標（コンパクト版） -->
+  <div class="goal-card" id="goalCard" style="padding:10px 14px;margin-bottom:8px;">
+    <div class="goal-label" style="margin-bottom:2px;">📍 今月の目標</div>
+    <div class="goal-text" style="font-size:13px;" id="goalText">タップして目標を入力しよう！</div>
     <button class="goal-edit-btn" onclick="openGoalEdit()">編集</button>
   </div>
 
@@ -260,9 +288,15 @@
   <!-- カレンダー -->
   <div class="calendar-grid" id="calendarGrid"></div>
 
-  <!-- 給料サマリー -->
-  <div style="margin-top:12px;">
-    <div class="section-title">💰 今月の給料（概算）</div>
+  <!-- 給料サマリー（歯車付き） -->
+  <div style="margin-top:10px;">
+    <div class="section-title" style="justify-content:space-between;">
+      <span>💰 今月の給料（概算）</span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button onclick="openBulkBaitoModal()" style="background:var(--primary-light);border:none;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:900;color:var(--primary);cursor:pointer;">📅 一括設定</button>
+        <button onclick="openWageModal()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:0;line-height:1;" title="時給・締め日を設定">⚙️</button>
+      </div>
+    </div>
     <div class="salary-summary">
       <div class="summary-card">
         <div class="summary-label">実働時間</div>
@@ -272,10 +306,13 @@
       <div class="summary-card">
         <div class="summary-label">概算給料</div>
         <div class="summary-value" id="summaryYen">¥0</div>
-        <div class="summary-unit">円（概算）</div>
+        <div class="summary-unit" id="summaryWageDesc">時給未設定</div>
       </div>
     </div>
   </div>
+
+  <!-- カウントダウン -->
+  <div class="countdown-section" id="countdownSection"></div>
 </div>
 
 <!-- グループページ -->
@@ -300,24 +337,6 @@
     <div class="settings-text">
       <div class="settings-title">時給・締め日の設定</div>
       <div class="settings-desc" id="wageDesc">未設定</div>
-    </div>
-    <span class="settings-arrow">›</span>
-  </div>
-
-  <div class="settings-item" onclick="openTimetablePhoto()">
-    <span class="settings-icon">📸</span>
-    <div class="settings-text">
-      <div class="settings-title">時間割写真</div>
-      <div class="settings-desc">タップして呼び出せる時間割写真を設定</div>
-    </div>
-    <span class="settings-arrow">›</span>
-  </div>
-
-  <div class="settings-item" onclick="showTimetable()">
-    <span class="settings-icon">🗓️</span>
-    <div class="settings-text">
-      <div class="settings-title">時間割を見る</div>
-      <div class="settings-desc">登録した時間割写真を表示</div>
     </div>
     <span class="settings-arrow">›</span>
   </div>
@@ -351,7 +370,7 @@
     <div class="subject-chip" onclick="filterPhotos('国語',this)">国語</div>
     <div class="subject-chip" onclick="filterPhotos('理科',this)">理科</div>
     <div class="subject-chip" onclick="filterPhotos('社会',this)">社会</div>
-    <div class="subject-chip" onclick="filterPhotos('その他',this)">その他</div>
+    <div class="subject-chip" onclick="filterPhotos('時間割',this)">時間割</div>
   </div>
   <div class="photo-grid" id="photoGrid">
     <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--sub);font-size:13px;font-weight:700;">
@@ -381,7 +400,7 @@
       <div class="subject-chip" onclick="selectSubjectAndUpload('国語')">国語</div>
       <div class="subject-chip" onclick="selectSubjectAndUpload('理科')">理科</div>
       <div class="subject-chip" onclick="selectSubjectAndUpload('社会')">社会</div>
-      <div class="subject-chip" onclick="selectSubjectAndUpload('その他')">その他</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('時間割')">時間割</div>
     </div>
     <button class="btn btn-secondary" style="margin-top:8px;" onclick="closePhotoSubjectModal()">キャンセル</button>
   </div>
@@ -412,10 +431,16 @@
     <!-- バイト入力 -->
     <div class="section-title">💰 バイト</div>
     <div id="baitoTagArea" style="min-height:32px;margin-bottom:8px;"></div>
-    <div class="form-row-inline" style="margin-bottom:8px;">
+    <div class="form-row-inline" style="margin-bottom:6px;">
       <input type="time" class="form-input" id="baitoStart" value="16:00">
       <span style="line-height:42px;color:var(--sub);font-weight:900;">〜</span>
       <input type="time" class="form-input" id="baitoEnd" value="21:00">
+    </div>
+    <div class="form-row-inline" style="margin-bottom:10px;align-items:center;">
+      <span style="font-size:12px;font-weight:900;color:var(--sub);white-space:nowrap;">☕ 休憩</span>
+      <input type="number" class="form-input" id="baitoBreak" placeholder="0" min="0" max="480" style="max-width:80px;text-align:right;">
+      <span style="font-size:12px;color:var(--sub);font-weight:700;white-space:nowrap;">分</span>
+      <span style="font-size:11px;color:var(--primary);font-weight:900;flex:1;text-align:right;" id="baitoNetTime"></span>
     </div>
     <button class="btn btn-primary btn-sm" style="margin-bottom:14px;" onclick="saveBaito()">💰 バイトを登録</button>
 
@@ -424,12 +449,54 @@
     <div class="form-row">
       <input type="text" class="form-input" id="eventInput" placeholder="予定を入力（テスト・部活など）">
     </div>
+    <div class="cd-toggle-row">
+      <span class="cd-toggle-label">👥 友達に共有する</span>
+      <button class="toggle-switch on" id="eventShareToggle" onclick="toggleEventShare()"></button>
+    </div>
+    <div class="cd-toggle-row">
+      <span class="cd-toggle-label">⏱ カウントダウン表示</span>
+      <button class="toggle-switch" id="cdToggle" onclick="toggleCdSwitch()"></button>
+    </div>
     <button class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="saveEvent()">予定を保存</button>
 
-    <!-- 友達のバイト表示 -->
+    <!-- 友達の情報 -->
     <div id="friendsBaitoArea"></div>
 
     <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeDayModal()">閉じる</button>
+  </div>
+</div>
+
+<!-- バイト曜日一括設定モーダル -->
+<div class="modal-overlay" id="bulkBaitoModal" onclick="closeBulkBaitoModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 バイト曜日一括設定</div>
+    <div class="form-label" style="text-align:center;margin-bottom:4px;">登録する曜日を選択</div>
+    <div class="dow-chips">
+      <div class="dow-chip sun" data-dow="0" onclick="toggleDowChip(this)">日</div>
+      <div class="dow-chip" data-dow="1" onclick="toggleDowChip(this)">月</div>
+      <div class="dow-chip" data-dow="2" onclick="toggleDowChip(this)">火</div>
+      <div class="dow-chip" data-dow="3" onclick="toggleDowChip(this)">水</div>
+      <div class="dow-chip" data-dow="4" onclick="toggleDowChip(this)">木</div>
+      <div class="dow-chip" data-dow="5" onclick="toggleDowChip(this)">金</div>
+      <div class="dow-chip sat" data-dow="6" onclick="toggleDowChip(this)">土</div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">対象月</label>
+      <select class="form-input" id="bulkMonthSelect"></select>
+    </div>
+    <div class="form-row-inline" style="margin-bottom:6px;">
+      <input type="time" class="form-input" id="bulkStart" value="16:00">
+      <span style="line-height:42px;color:var(--sub);font-weight:900;">〜</span>
+      <input type="time" class="form-input" id="bulkEnd" value="21:00">
+    </div>
+    <div class="form-row-inline" style="margin-bottom:14px;align-items:center;">
+      <span style="font-size:12px;font-weight:900;color:var(--sub);white-space:nowrap;">☕ 休憩</span>
+      <input type="number" class="form-input" id="bulkBreak" placeholder="0" min="0" max="480" style="max-width:80px;text-align:right;">
+      <span style="font-size:12px;color:var(--sub);font-weight:700;white-space:nowrap;">分</span>
+    </div>
+    <button class="btn btn-primary" onclick="applyBulkBaito()">✓ 一括登録する</button>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeBulkBaitoModal()">キャンセル</button>
   </div>
 </div>
 
@@ -585,6 +652,7 @@ async function enterApp(){
     renderCalendar();
     renderMembers();
     renderSummary();
+    renderCountdown();
   });
 
   // グループ名表示
@@ -598,6 +666,7 @@ async function enterApp(){
   document.getElementById('loadingScreen').classList.add('hidden');
   renderCalendar();
   renderWageDesc();
+  loadWageMain();
 }
 
 // ===== グループ作成 =====
@@ -649,17 +718,27 @@ window.joinGroup = async function(){
 // ===== カレンダー =====
 const DOW = ['日','月','火','水','木','金','土'];
 const HOLIDAYS = {
+  // 2025
   '2025-01-01':'元日','2025-01-13':'成人の日','2025-02-11':'建国記念の日',
   '2025-02-23':'天皇誕生日','2025-03-20':'春分の日','2025-04-29':'昭和の日',
   '2025-05-03':'憲法記念日','2025-05-04':'みどりの日','2025-05-05':'こどもの日',
-  '2025-07-21':'海の日','2025-08-11':'山の日','2025-09-15':'敬老の日',
-  '2025-09-23':'秋分の日','2025-10-13':'スポーツの日','2025-11-03':'文化の日',
-  '2025-11-23':'勤労感謝の日','2026-01-01':'元日','2026-01-12':'成人の日',
-  '2026-02-11':'建国記念の日','2026-02-23':'天皇誕生日','2026-03-20':'春分の日',
-  '2026-04-29':'昭和の日','2026-05-03':'憲法記念日','2026-05-04':'みどりの日',
-  '2026-05-05':'こどもの日','2026-07-20':'海の日','2026-08-11':'山の日',
-  '2026-09-21':'敬老の日','2026-09-23':'秋分の日','2026-10-12':'スポーツの日',
-  '2026-11-03':'文化の日','2026-11-23':'勤労感謝の日'
+  '2025-05-06':'振替休日','2025-07-21':'海の日','2025-08-11':'山の日',
+  '2025-09-15':'敬老の日','2025-09-23':'秋分の日','2025-10-13':'スポーツの日',
+  '2025-11-03':'文化の日','2025-11-23':'勤労感謝の日','2025-11-24':'振替休日',
+  // 2026
+  '2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日',
+  '2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日',
+  '2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日',
+  '2026-05-06':'振替休日','2026-07-20':'海の日','2026-08-11':'山の日',
+  '2026-09-21':'敬老の日','2026-09-22':'国民の休日','2026-09-23':'秋分の日',
+  '2026-10-12':'スポーツの日','2026-11-03':'文化の日','2026-11-23':'勤労感謝の日',
+  // 2027
+  '2027-01-01':'元日','2027-01-11':'成人の日','2027-02-11':'建国記念の日',
+  '2027-02-23':'天皇誕生日','2027-03-21':'春分の日','2027-04-29':'昭和の日',
+  '2027-05-03':'憲法記念日','2027-05-04':'みどりの日','2027-05-05':'こどもの日',
+  '2027-07-19':'海の日','2027-08-11':'山の日','2027-08-12':'振替休日',
+  '2027-09-20':'敬老の日','2027-09-23':'秋分の日','2027-10-11':'スポーツの日',
+  '2027-11-03':'文化の日','2027-11-23':'勤労感謝の日'
 };
 
 function fmtDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -714,11 +793,14 @@ function renderCalendar(){
     if(hol) cls += ' holiday';
 
     let badges = '';
-    if(myBaito) badges += `<div class="cal-badge baito">💰${myBaito.start}〜</div>`;
-    if(myEvent) badges += `<div class="cal-badge event">📝${myEvent.slice(0,5)}</div>`;
-    friendBaitos.forEach(name => {
-      badges += `<div class="cal-badge friend-baito">👤${name}</div>`;
-    });
+    if(myBaito) badges += `<div class="cal-badge baito">💰${myBaito.start}</div>`;
+    if(myEvent) badges += `<div class="cal-badge event">📝${myEvent.slice(0,4)}</div>`;
+    // 友達は人数だけまとめて表示
+    if(friendBaitos.length === 1){
+      badges += `<div class="cal-badge friends">👤${friendBaitos[0]}</div>`;
+    } else if(friendBaitos.length > 1){
+      badges += `<div class="cal-badge friends">👥${friendBaitos.length}人</div>`;
+    }
 
     html += `<div class="${cls}" onclick="openDayModal('${dateStr}')">
       <div class="cal-date">${day}</div>
@@ -740,31 +822,62 @@ window.openDayModal = function(dateStr){
   if(myBaito){
     document.getElementById('baitoStart').value = myBaito.start;
     document.getElementById('baitoEnd').value = myBaito.end;
+    document.getElementById('baitoBreak').value = myBaito.breakMin || 0;
+    const net = calcNetMin(myBaito.start, myBaito.end, myBaito.breakMin||0);
+    document.getElementById('baitoNetTime').textContent = net > 0 ? `実働 ${Math.floor(net/60)}h${net%60>0?net%60+'m':''}` : '';
     document.getElementById('baitoTagArea').innerHTML =
-      `<div class="baito-tag">💰 ${myBaito.start}〜${myBaito.end}
-        <button class="remove-btn" onclick="removeBaito()">✕</button>
-      </div>`;
+      `<div class="baito-tag">💰 ${myBaito.start}〜${myBaito.end}${myBaito.breakMin?` (休憩${myBaito.breakMin}分)`:''}<button class="remove-btn" onclick="removeBaito()">✕</button></div>`;
   } else {
     document.getElementById('baitoStart').value = '16:00';
     document.getElementById('baitoEnd').value = '21:00';
+    document.getElementById('baitoBreak').value = '';
+    document.getElementById('baitoNetTime').textContent = '';
     document.getElementById('baitoTagArea').innerHTML = '';
   }
+
+  // 休憩変更時にリアルタイム更新
+  ['baitoStart','baitoEnd','baitoBreak'].forEach(id => {
+    document.getElementById(id).oninput = () => {
+      const s = document.getElementById('baitoStart').value;
+      const e = document.getElementById('baitoEnd').value;
+      const b = parseInt(document.getElementById('baitoBreak').value)||0;
+      const net = calcNetMin(s, e, b);
+      document.getElementById('baitoNetTime').textContent = net > 0 ? `実働 ${Math.floor(net/60)}h${net%60>0?net%60+'m':''}` : '';
+    };
+  });
 
   const myEvent = getMyEvent(dateStr);
   document.getElementById('eventInput').value = myEvent || '';
 
-  // 友達のバイト表示
+  // カウントダウントグル状態
+  const cdOn = !!(memberData[uid]?.countdown?.[dateStr]);
+  const toggle = document.getElementById('cdToggle');
+  toggle.classList.toggle('on', cdOn);
+
+  // 予定共有トグル状態（デフォルトON）
+  const shareOn = memberData[uid]?.eventShare?.[dateStr] !== false;
+  document.getElementById('eventShareToggle').classList.toggle('on', shareOn);
+
+  // 友達の情報表示（バイト＋予定）
   const friends = Object.entries(memberData)
-    .filter(([mid, md]) => mid !== uid && md.shareOn && md.baito?.[dateStr]);
+    .filter(([mid, md]) => mid !== uid && md.shareOn);
   let friendHtml = '';
   if(friends.length > 0){
-    friendHtml = `<div class="section-title" style="margin-top:12px;">👥 友達のバイト</div>`;
-    friends.forEach(([mid, md]) => {
-      const b = md.baito[dateStr];
-      friendHtml += `<div style="background:var(--bg);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:13px;font-weight:700;">
-        <span style="color:var(--accent);">● ${md.name}</span> ${b.start}〜${b.end}
-      </div>`;
-    });
+    const friendItems = friends.map(([mid, md]) => {
+      const b = md.baito?.[dateStr];
+      const ev = md.events?.[dateStr];
+      const evShared = md.eventShare?.[dateStr] !== false; // デフォルトtrue
+      if(!b && (!ev || !evShared)) return '';
+      let content = `<div style="background:var(--bg);border-radius:10px;padding:8px 12px;margin-bottom:6px;">
+        <div style="font-size:12px;font-weight:900;color:var(--accent);margin-bottom:3px;">● ${md.name}</div>`;
+      if(b) content += `<div style="font-size:12px;font-weight:700;">💰 ${b.start}〜${b.end}${b.breakMin?` (休憩${b.breakMin}分)`:''}</div>`;
+      if(ev && evShared) content += `<div style="font-size:12px;font-weight:700;margin-top:2px;">📝 ${ev}</div>`;
+      content += `</div>`;
+      return content;
+    }).filter(Boolean).join('');
+    if(friendItems){
+      friendHtml = `<div class="section-title" style="margin-top:12px;">👥 友達の予定</div>${friendItems}`;
+    }
   }
   document.getElementById('friendsBaitoArea').innerHTML = friendHtml;
 
@@ -780,16 +893,17 @@ window.closeDayModal = function(e){
 window.saveBaito = async function(){
   const start = document.getElementById('baitoStart').value;
   const end = document.getElementById('baitoEnd').value;
+  const breakMin = parseInt(document.getElementById('baitoBreak').value) || 0;
   if(!start||!end){ toast('時間を入力してね'); return; }
 
   const mRef = doc(db, 'groups', groupId, 'members', uid);
   const current = memberData[uid] || {};
   const baito = current.baito || {};
-  baito[selectedDate] = { start, end };
+  baito[selectedDate] = { start, end, breakMin };
   await setDoc(mRef, { baito }, { merge: true });
 
   document.getElementById('baitoTagArea').innerHTML =
-    `<div class="baito-tag">💰 ${start}〜${end}
+    `<div class="baito-tag">💰 ${start}〜${end}${breakMin?` (休憩${breakMin}分)`:''}
       <button class="remove-btn" onclick="removeBaito()">✕</button>
     </div>`;
   toast('バイトを登録したよ！');
@@ -798,24 +912,114 @@ window.saveBaito = async function(){
 window.removeBaito = async function(){
   const mRef = doc(db, 'groups', groupId, 'members', uid);
   const current = memberData[uid] || {};
-  const baito = current.baito || {};
+  const baito = { ...(current.baito || {}) };
   delete baito[selectedDate];
   await setDoc(mRef, { baito }, { merge: true });
   document.getElementById('baitoTagArea').innerHTML = '';
+  document.getElementById('baitoNetTime').textContent = '';
+  renderCalendar();
+  renderSummary();
   toast('バイトを削除したよ');
+};
+
+// 予定共有トグル
+window.toggleEventShare = function(){
+  document.getElementById('eventShareToggle').classList.toggle('on');
+};
+
+// カウントダウントグル
+window.toggleCdSwitch = function(){
+  document.getElementById('cdToggle').classList.toggle('on');
 };
 
 window.saveEvent = async function(){
   const val = document.getElementById('eventInput').value.trim();
+  const cdOn = document.getElementById('cdToggle').classList.contains('on');
+  const shareOn = document.getElementById('eventShareToggle').classList.contains('on');
   const mRef = doc(db, 'groups', groupId, 'members', uid);
   const current = memberData[uid] || {};
   const events = current.events || {};
+  const countdown = current.countdown || {};
+  const eventShare = current.eventShare || {};
+
   if(val) events[selectedDate] = val;
   else delete events[selectedDate];
-  await setDoc(mRef, { events }, { merge: true });
+
+  if(cdOn && val) countdown[selectedDate] = true;
+  else delete countdown[selectedDate];
+
+  if(val) eventShare[selectedDate] = shareOn;
+  else delete eventShare[selectedDate];
+
+  await setDoc(mRef, { events, countdown, eventShare }, { merge: true });
   toast(val ? '予定を保存したよ！' : '予定を削除したよ');
   closeDayModal();
+  renderCountdown();
 };
+
+// ===== カウントダウン描画 =====
+function renderCountdown(){
+  const section = document.getElementById('countdownSection');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const cdMap = memberData[uid]?.countdown || {};
+  const events = memberData[uid]?.events || {};
+
+  const items = Object.entries(cdMap)
+    .filter(([dateStr, on]) => on && events[dateStr])
+    .map(([dateStr]) => {
+      const d = new Date(dateStr+'T00:00:00');
+      const diff = Math.round((d - today) / (1000*60*60*24));
+      return { dateStr, name: events[dateStr], diff, d };
+    })
+    .filter(item => item.diff >= 0)
+    .sort((a,b) => a.diff - b.diff);
+
+  if(items.length === 0){ section.innerHTML = ''; return; }
+
+  const html = items.map(item => {
+    const isToday = item.diff === 0;
+    const label = isToday ? '今日！' : `${item.diff}日後`;
+    const dateLabel = `${item.d.getMonth()+1}/${item.d.getDate()}（${DOW[item.d.getDay()]}）`;
+    return `<div class="countdown-item ${isToday?'countdown-today':''}">
+      <div class="countdown-days">${item.diff}<span>${isToday?'🎉':'日後'}</span></div>
+      <div class="countdown-info">
+        <div class="countdown-name">${item.name}</div>
+        <div class="countdown-date">${dateLabel}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  section.innerHTML = `<div class="section-title">⏱ カウントダウン</div><div class="countdown-list">${html}</div>`;
+}
+
+// ===== 時給メイン画面 =====
+window.saveWageMain = function(){
+  const wage = document.getElementById('wageInputMain').value;
+  const shime = document.getElementById('shimeBiMain').value;
+  localStorage.setItem('wage', wage);
+  localStorage.setItem('shimeBi', shime);
+  renderSummary();
+};
+
+function loadWageMain(){
+  const wage = localStorage.getItem('wage') || '';
+  const shime = localStorage.getItem('shimeBi') || '15';
+  const wi = document.getElementById('wageInputMain');
+  const si = document.getElementById('shimeBiMain');
+  if(wi) wi.value = wage;
+  if(si) si.value = shime;
+}
+
+// ===== 給料サマリー =====
+// 実働時間計算（休憩考慮）
+function calcNetMin(start, end, breakMin){
+  if(!start||!end) return 0;
+  const [sh,sm] = start.split(':').map(Number);
+  const [eh,em] = end.split(':').map(Number);
+  let endTotal = eh*60+em;
+  if(endTotal <= sh*60+sm) endTotal += 24*60;
+  return Math.max(0, endTotal - (sh*60+sm) - (breakMin||0));
+}
 
 // ===== 給料サマリー =====
 function renderSummary(){
@@ -828,16 +1032,16 @@ function renderSummary(){
     const dateStr = fmtDate(new Date(y,m,day));
     const b = getMyBaito(dateStr);
     if(!b) continue;
-    const [sh,sm] = b.start.split(':').map(Number);
-    const [eh,em] = b.end.split(':').map(Number);
-    let endTotal = eh*60+em;
-    if(endTotal <= sh*60+sm) endTotal += 24*60;
-    totalMin += endTotal - (sh*60+sm);
+    totalMin += calcNetMin(b.start, b.end, b.breakMin||0);
   }
 
-  const h = Math.floor(totalMin/60), min = totalMin%60;
+  const h = Math.floor(totalMin/60);
   document.getElementById('summaryHours').textContent = `${h}`;
-  document.getElementById('summaryYen').textContent = wage ? `¥${Math.floor(totalMin/60*wage).toLocaleString()}` : '未設定';
+  document.getElementById('summaryYen').textContent = wage ? `¥${Math.floor(totalMin/60*wage).toLocaleString()}` : '---';
+  const shime = localStorage.getItem('shimeBi') || '15';
+  const shimeLabel = shime==='0' ? '末締め' : `${shime}日締め`;
+  const wageDescEl = document.getElementById('summaryWageDesc');
+  if(wageDescEl) wageDescEl.textContent = wage ? `時給¥${wage} / ${shimeLabel}` : '⚙️ タップして設定';
 }
 
 // ===== 目標 =====
@@ -902,7 +1106,7 @@ window.toggleShare = async function(){
 };
 
 // ===== 設定 =====
-window.openWageSettings = function(){
+window.openWageModal = window.openWageSettings = function(){
   const wage = localStorage.getItem('wage') || '';
   const shime = localStorage.getItem('shimeBi') || '15';
   document.getElementById('wageInput').value = wage;
@@ -970,7 +1174,72 @@ window.leaveGroup = function(){
   location.reload();
 };
 
-// ===== 板書写真共有 =====
+// ===== バイト曜日一括設定 =====
+let selectedDows = new Set();
+
+window.openBulkBaitoModal = function(){
+  selectedDows = new Set();
+  document.querySelectorAll('.dow-chip').forEach(c => c.classList.remove('selected'));
+
+  // 対象月セレクト（今月・来月・再来月）
+  const sel = document.getElementById('bulkMonthSelect');
+  sel.innerHTML = '';
+  const now = new Date();
+  for(let i=0; i<3; i++){
+    const d = new Date(now.getFullYear(), now.getMonth()+i, 1);
+    const label = `${d.getFullYear()}年${d.getMonth()+1}月`;
+    const val = `${d.getFullYear()}-${d.getMonth()+1}`;
+    sel.innerHTML += `<option value="${val}">${label}</option>`;
+  }
+
+  document.getElementById('bulkBaitoModal').classList.add('open');
+};
+
+window.closeBulkBaitoModal = function(e){
+  if(!e || e.target===document.getElementById('bulkBaitoModal')){
+    document.getElementById('bulkBaitoModal').classList.remove('open');
+  }
+};
+
+window.toggleDowChip = function(el){
+  const dow = parseInt(el.dataset.dow);
+  if(selectedDows.has(dow)){
+    selectedDows.delete(dow);
+    el.classList.remove('selected');
+  } else {
+    selectedDows.add(dow);
+    el.classList.add('selected');
+  }
+};
+
+window.applyBulkBaito = async function(){
+  if(selectedDows.size === 0){ toast('曜日を選択してね'); return; }
+  const start = document.getElementById('bulkStart').value;
+  const end   = document.getElementById('bulkEnd').value;
+  const breakMin = parseInt(document.getElementById('bulkBreak').value) || 0;
+  const [y, m] = document.getElementById('bulkMonthSelect').value.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  const current = memberData[uid] || {};
+  const baito = { ...(current.baito || {}) };
+
+  let count = 0;
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(y, m-1, day);
+    if(selectedDows.has(d.getDay())){
+      const dateStr = fmtDate(d);
+      baito[dateStr] = { start, end, breakMin };
+      count++;
+    }
+  }
+
+  await setDoc(mRef, { baito }, { merge: true });
+  closeBulkBaitoModal();
+  renderCalendar();
+  renderSummary();
+  toast(`${count}日分のバイトを登録したよ！`);
+};
 const CLOUDINARY_CLOUD = 'dspdhssqp';
 const CLOUDINARY_PRESET = 'zuttomo-ban';
 let pendingFile = null;
@@ -1122,7 +1391,7 @@ window.switchPage = function(page, btn){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById(page+'Page').classList.add('active');
   btn.classList.add('active');
-  if(page==='cal'){ renderCalendar(); renderSummary(); renderGoal(); }
+  if(page==='cal'){ renderCalendar(); renderSummary(); renderGoal(); renderCountdown(); loadWageMain(); }
   if(page==='photo'){ loadPhotos(); }
 };
 
