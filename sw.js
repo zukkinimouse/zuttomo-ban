@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zuttomo-ban-v3';
+const CACHE_NAME = 'zuttomo-ban-v4';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -23,7 +23,6 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// Push通知受信
 self.addEventListener('push', e => {
   const data = e.data ? e.data.json() : { title: 'ずっとも板', body: 'お知らせがあるよ！' };
   e.waitUntil(
@@ -36,7 +35,6 @@ self.addEventListener('push', e => {
   );
 });
 
-// 通知タップでアプリを開く
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(clients.openWindow('./'));
