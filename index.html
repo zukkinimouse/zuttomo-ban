@@ -796,6 +796,16 @@ async function enterApp(){
   onSnapshot(collection(db, 'groups', groupId, 'members'), snap => {
     const newData = {};
     snap.forEach(d => newData[d.id] = d.data());
+
+    // アプリ開きっぱなし中にキックされた場合を検知
+    if(Object.keys(prevMemberData).length > 0 && !newData[uid]){
+      groupId = null;
+      localStorage.removeItem('groupId');
+      alert('グループから退出させられました。');
+      showJoinScreen();
+      return;
+    }
+
     buildMemberColorMap();
     checkFriendChanges(prevMemberData, newData);
     prevMemberData = {...newData};
@@ -1124,27 +1134,32 @@ window.saveEvent = async function(){
   const cdOn = document.getElementById('cdToggle').classList.contains('on');
   const shareOn = document.getElementById('eventShareToggle').classList.contains('on');
   const mRef = doc(db, 'groups', groupId, 'members', uid);
-  const current = memberData[uid] || {};
-  const events = { ...(current.events || {}) };
-  const countdown = { ...(current.countdown || {}) };
-  const eventShare = { ...(current.eventShare || {}) };
 
-  if(val) events[selectedDate] = val;
-  else delete events[selectedDate];
+  const events = { ...(memberData[uid]?.events || {}) };
+  const countdown = { ...(memberData[uid]?.countdown || {}) };
+  const eventShare = { ...(memberData[uid]?.eventShare || {}) };
 
-  if(cdOn && val) countdown[selectedDate] = true;
-  else delete countdown[selectedDate];
-
-  if(val) eventShare[selectedDate] = shareOn;
-  else delete eventShare[selectedDate];
+  if(val){ events[selectedDate] = val; } else { delete events[selectedDate]; }
+  if(cdOn && val){ countdown[selectedDate] = true; } else { delete countdown[selectedDate]; }
+  if(val){ eventShare[selectedDate] = shareOn; } else { delete eventShare[selectedDate]; }
 
   // ローカルのmemberDataを即時更新
   memberData[uid] = { ...memberData[uid], events, countdown, eventShare };
   renderCalendar();
   renderCountdown();
 
-  // Firestoreに非同期で保存
-  await setDoc(mRef, { events, countdown, eventShare }, { merge: true });
+  // updateDoc + deleteFieldで確実に保存・削除
+  const updates = {};
+  if(val){
+    updates[`events.${selectedDate}`] = val;
+    updates[`countdown.${selectedDate}`] = cdOn ? true : deleteField();
+    updates[`eventShare.${selectedDate}`] = shareOn;
+  } else {
+    updates[`events.${selectedDate}`] = deleteField();
+    updates[`countdown.${selectedDate}`] = deleteField();
+    updates[`eventShare.${selectedDate}`] = deleteField();
+  }
+  await updateDoc(mRef, updates);
   toast(val ? '予定を保存したよ！' : '予定を削除したよ');
   closeDayModal();
 };
@@ -1507,20 +1522,28 @@ function checkFriendChanges(prevData, newData){
     const prev = prevData[mid] || {};
     const name = md.name;
 
-    // シフト登録検知（新しく追加された日付を特定）
+    // シフト登録検知（新しく追加された日付をまとめる）
     const prevBaito = prev.baito || {};
     const newBaito = md.baito || {};
-    Object.entries(newBaito).forEach(([dateStr, info]) => {
-      if(!prevBaito[dateStr]){
-        const d = new Date(dateStr+'T00:00:00');
-        const dateLabel = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
-        const text = `${name}が${dateLabel} ${info.start}〜${info.end}のバイトを登録したよ`;
-        addNotice('shift', text, mid);
-        if(settings.shift) showLocalNotification('💰 シフト登録', text, 'shift-'+mid+'-'+dateStr);
-      }
-    });
+    const addedBaito = Object.entries(newBaito).filter(([dateStr]) => !prevBaito[dateStr]);
 
-    // 予定登録検知（新しく追加された日付を特定）
+    if(addedBaito.length === 1){
+      // 1件だけの場合は詳細表示
+      const [dateStr, info] = addedBaito[0];
+      const d = new Date(dateStr+'T00:00:00');
+      const dateLabel = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+      const text = `${name}が${dateLabel} ${info.start}〜${info.end}のバイトを登録したよ`;
+      addNotice('shift', text, mid);
+      if(settings.shift) showLocalNotification('💰 シフト登録', text, 'shift-'+mid+'-'+dateStr);
+    } else if(addedBaito.length > 1){
+      // 複数件の場合はまとめて表示
+      const info = addedBaito[0][1];
+      const text = `${name}が${info.start}〜${info.end}のバイトを${addedBaito.length}件一括登録したよ`;
+      addNotice('shift', text, mid);
+      if(settings.shift) showLocalNotification('💰 シフト一括登録', text, 'shift-bulk-'+mid);
+    }
+
+    // 予定登録検知
     const prevEvents = prev.events || {};
     const newEvents = md.events || {};
     Object.entries(newEvents).forEach(([dateStr, eventName]) => {
@@ -1886,6 +1909,13 @@ window.applyBulkBaito = async function(){
   });
   await updateDoc(mRef, updates);
   memberData[uid] = { ...memberData[uid], baito: { ...(memberData[uid]?.baito || {}), ...baito } };
+
+  // 自分のお知らせ（友達に見える形で記録）
+  const dowNames = ['日','月','火','水','木','金','土'];
+  const dowLabels = [...selectedDows].map(d => dowNames[d]).join('・');
+  const myName = memberData[uid]?.name || 'あなた';
+  addNotice('shift', `${myName}が${y}/${m}月の毎週${dowLabels} ${start}〜${end}を${count}件一括登録したよ`, uid);
+
   closeBulkBaitoModal();
   renderCalendar();
   renderSummary();
@@ -2112,7 +2142,14 @@ let memberColorMap = {}; // uid -> color
 
 function buildMemberColorMap(){
   memberColorMap = {};
-  Object.keys(memberData).forEach((mid, i) => {
+  // joinedAt順に並び替えて色を固定（順番が変わらないように）
+  const sorted = Object.entries(memberData)
+    .sort(([, a], [, b]) => {
+      const ta = a.joinedAt?.seconds || 0;
+      const tb = b.joinedAt?.seconds || 0;
+      return ta - tb;
+    });
+  sorted.forEach(([mid], i) => {
     memberColorMap[mid] = MEMBER_COLORS[i % MEMBER_COLORS.length];
   });
 }
