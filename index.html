@@ -55,7 +55,7 @@
 
     /* ボトムナビ */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 8px; cursor: pointer; border: none; background: none; color: var(--sub); font-size: 9px; font-weight: 700; gap: 3px; transition: 0.2s; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 8px; cursor: pointer; border: none; background: none; color: var(--sub); font-size: 11px; font-weight: 700; gap: 3px; transition: 0.2s; }
     .nav-item .nav-icon { font-size: 22px; line-height: 1; }
     .nav-item.active { color: var(--primary); }
     .nav-item.active .nav-icon { transform: scale(1.15); }
@@ -64,11 +64,11 @@
     .card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 14px; margin-bottom: 10px; }
 
     /* 目標ゾーン */
-    .goal-card { background: linear-gradient(135deg, #ff6b6b, #ff8e53); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; color: #fff; position: relative; overflow: hidden; }
-    .goal-card::before { content: '🎯'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 48px; opacity: 0.2; }
-    .goal-label { font-size: 10px; font-weight: 900; opacity: 0.85; margin-bottom: 4px; letter-spacing: 1px; }
-    .goal-text { font-size: 15px; font-weight: 900; line-height: 1.4; min-height: 22px; }
-    .goal-edit-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.25); border: none; border-radius: 8px; padding: 4px 8px; font-size: 10px; font-weight: 900; color: #fff; cursor: pointer; }
+    .goal-card { background: linear-gradient(135deg, #ff6b6b, #ff8e53); border-radius: 24px; padding: 16px 18px; margin-bottom: 10px; color: #fff; position: relative; overflow: hidden; }
+    .goal-card::before { content: '🎯'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 52px; opacity: 0.18; }
+    .goal-label { font-size: 10px; font-weight: 900; opacity: 0.85; margin-bottom: 5px; letter-spacing: 1px; }
+    .goal-text { font-size: 15px; font-weight: 900; line-height: 1.5; min-height: 24px; }
+    .goal-edit-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.25); border: none; border-radius: 10px; padding: 5px 10px; font-size: 10px; font-weight: 900; color: #fff; cursor: pointer; }
 
     /* 月ナビ */
     .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -93,7 +93,9 @@
     .cal-badge { font-size: 7px; font-weight: 900; border-radius: 3px; padding: 1.5px 2px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
     .cal-badge.baito { background: #ffe0e0; color: #e03030; }
     .cal-badge.event { background: #e8f4ff; color: #2563eb; }
-    .cal-badge.friends { background: #e8faf0; color: #16a34a; }
+    /* 友達はドット表示 */
+    .cal-friends-dots { display: flex; gap: 2px; margin-top: 2px; padding: 0 2px; flex-wrap: wrap; }
+    .cal-friend-dot { width: 6px; height: 6px; border-radius: 50%; background: #6bcb77; flex-shrink: 0; }
 
     /* 給料サマリー */
     .salary-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
@@ -276,9 +278,9 @@
 <!-- カレンダーページ -->
 <div id="calPage" class="page active">
   <!-- 今月の目標（コンパクト版） -->
-  <div class="goal-card" id="goalCard" style="padding:10px 14px;margin-bottom:8px;">
-    <div class="goal-label" style="margin-bottom:2px;">📍 今月の目標</div>
-    <div class="goal-text" style="font-size:13px;" id="goalText">タップして目標を入力しよう！</div>
+  <div class="goal-card" id="goalCard">
+    <div class="goal-label">📍 今月の目標</div>
+    <div class="goal-text" id="goalText">タップして目標を入力しよう！</div>
     <button class="goal-edit-btn" onclick="openGoalEdit()">編集</button>
   </div>
 
@@ -337,6 +339,42 @@
 
 <!-- 設定ページ -->
 <div id="settingsPage" class="page">
+
+  <!-- 通知設定 -->
+  <div class="section-title">🔔 通知設定</div>
+  <div class="card" style="margin-bottom:10px;" id="notifySettingsCard">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.6;">通知を受け取るには、ブラウザの通知許可が必要です。</div>
+    <div id="notifyPermissionBanner"></div>
+
+    <div class="cd-toggle-row" style="margin-bottom:8px;">
+      <div>
+        <div style="font-size:12px;font-weight:900;">👥 友達のシフト登録</div>
+        <div style="font-size:10px;color:var(--sub);">友達がバイトを登録したとき</div>
+      </div>
+      <button class="toggle-switch" id="notifyShift" onclick="toggleNotifySetting('shift')"></button>
+    </div>
+    <div class="cd-toggle-row" style="margin-bottom:8px;">
+      <div>
+        <div style="font-size:12px;font-weight:900;">📝 友達の予定登録</div>
+        <div style="font-size:10px;color:var(--sub);">友達が予定を登録したとき</div>
+      </div>
+      <button class="toggle-switch" id="notifyEvent" onclick="toggleNotifySetting('event')"></button>
+    </div>
+    <div class="cd-toggle-row" style="margin-bottom:8px;">
+      <div>
+        <div style="font-size:12px;font-weight:900;">📸 友達の写真アップロード</div>
+        <div style="font-size:10px;color:var(--sub);">板書写真がアップされたとき</div>
+      </div>
+      <button class="toggle-switch" id="notifyPhoto" onclick="toggleNotifySetting('photo')"></button>
+    </div>
+    <div class="cd-toggle-row">
+      <div>
+        <div style="font-size:12px;font-weight:900;">⏰ バイトリマインダー</div>
+        <div style="font-size:10px;color:var(--sub);">バイト当日の朝8時に通知</div>
+      </div>
+      <button class="toggle-switch" id="notifyReminder" onclick="toggleNotifySetting('reminder')"></button>
+    </div>
+  </div>
 
   <div class="settings-item" onclick="openHelpPanel('how')">
     <span class="settings-icon">📖</span>
@@ -692,13 +730,32 @@ async function enterApp(){
   });
 
   // メンバーデータをリアルタイム監視
+  let prevMemberData = {};
   onSnapshot(collection(db, 'groups', groupId, 'members'), snap => {
-    memberData = {};
-    snap.forEach(d => memberData[d.id] = d.data());
+    const newData = {};
+    snap.forEach(d => newData[d.id] = d.data());
+    checkFriendChanges(prevMemberData, newData);
+    prevMemberData = {...newData};
+    memberData = newData;
     renderCalendar();
     renderMembers();
     renderSummary();
     renderCountdown();
+  });
+
+  // 写真アップロード通知用
+  let photosInitialized = false;
+  onSnapshot(collection(db, 'groups', groupId, 'photos'), snap => {
+    if(!photosInitialized){ photosInitialized = true; return; } // 初回は無視
+    const settings = getNotifySettings();
+    if(!settings.photo) return;
+    snap.docChanges().forEach(change => {
+      if(change.type === 'added'){
+        const data = change.doc.data();
+        if(data.uploadedBy === uid) return; // 自分のアップは通知しない
+        showLocalNotification('📸 板書がアップされたよ！', `${data.uploaderName || '友達'}が「${data.subject}」の写真を共有したよ`, 'photo-'+change.doc.id);
+      }
+    });
   });
 
   // グループ名表示
@@ -717,6 +774,8 @@ async function enterApp(){
   // 作成者なら招待コード更新ボタンを表示
   const regenBtn = document.getElementById('regenCodeBtn');
   if(regenBtn && groupData?.createdBy === uid) regenBtn.style.display = 'block';
+  // 通知セットアップ
+  setupNotifications();
 }
 
 // ===== グループ作成 =====
@@ -845,11 +904,10 @@ function renderCalendar(){
     let badges = '';
     if(myBaito) badges += `<div class="cal-badge baito">💰${myBaito.start}</div>`;
     if(myEvent) badges += `<div class="cal-badge event">📝${myEvent.slice(0,4)}</div>`;
-    // 友達は人数だけまとめて表示
-    if(friendBaitos.length === 1){
-      badges += `<div class="cal-badge friends">👤${friendBaitos[0]}</div>`;
-    } else if(friendBaitos.length > 1){
-      badges += `<div class="cal-badge friends">👥${friendBaitos.length}人</div>`;
+    // 友達はドット表示
+    if(friendBaitos.length > 0){
+      const dots = friendBaitos.map(() => `<div class="cal-friend-dot"></div>`).join('');
+      badges += `<div class="cal-friends-dots">${dots}</div>`;
     }
 
     html += `<div class="${cls}" onclick="openDayModal('${dateStr}')">
@@ -1303,7 +1361,130 @@ window.kickMember = async function(targetUid, targetName){
   }
 };
 
-// ===== 絵文字アイコン選択 =====
+// ===== 通知設定 =====
+const NOTIFY_KEYS = ['shift','event','photo','reminder'];
+
+function getNotifySettings(){
+  const saved = localStorage.getItem('notifySettings');
+  return saved ? JSON.parse(saved) : { shift:false, event:false, photo:false, reminder:false };
+}
+
+function saveNotifySettings(settings){
+  localStorage.setItem('notifySettings', JSON.stringify(settings));
+}
+
+function renderNotifySettings(){
+  const settings = getNotifySettings();
+  NOTIFY_KEYS.forEach(key => {
+    const btn = document.getElementById('notify'+key.charAt(0).toUpperCase()+key.slice(1));
+    if(btn) btn.classList.toggle('on', !!settings[key]);
+  });
+
+  // 通知許可バナー
+  const banner = document.getElementById('notifyPermissionBanner');
+  if(!banner) return;
+  if(!('Notification' in window)){
+    banner.innerHTML = `<div style="background:#ffe0e0;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;color:#e03030;margin-bottom:10px;">このブラウザは通知に対応していません</div>`;
+  } else if(Notification.permission === 'granted'){
+    banner.innerHTML = `<div style="background:#e8faf0;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:10px;">✅ 通知が許可されています</div>`;
+  } else if(Notification.permission === 'denied'){
+    banner.innerHTML = `<div style="background:#fff3cd;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;color:#92680a;margin-bottom:10px;">⚠️ 通知がブロックされています。ブラウザの設定から許可してください。</div>`;
+  } else {
+    banner.innerHTML = `<button class="btn btn-primary btn-sm" style="margin-bottom:10px;width:100%;" onclick="requestNotifyPermission()">🔔 通知を許可する</button>`;
+  }
+}
+
+window.requestNotifyPermission = async function(){
+  const perm = await Notification.requestPermission();
+  renderNotifySettings();
+  if(perm === 'granted') toast('通知を許可したよ！');
+  else toast('通知が許可されませんでした');
+};
+
+window.toggleNotifySetting = async function(key){
+  // 許可されていなければ先に許可を求める
+  if(Notification.permission === 'default'){
+    const perm = await Notification.requestPermission();
+    renderNotifySettings();
+    if(perm !== 'granted') return;
+  }
+  if(Notification.permission !== 'granted'){
+    toast('ブラウザの設定で通知を許可してね');
+    return;
+  }
+  const settings = getNotifySettings();
+  settings[key] = !settings[key];
+  saveNotifySettings(settings);
+  renderNotifySettings();
+  toast(settings[key] ? '通知をONにしたよ！' : '通知をOFFにしたよ');
+};
+
+function showLocalNotification(title, body, tag){
+  if(Notification.permission !== 'granted') return;
+  navigator.serviceWorker.ready.then(reg => {
+    reg.showNotification(title, {
+      body,
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      vibrate: [200, 100, 200],
+      tag: tag || title
+    });
+  });
+}
+
+// 友達のシフト・予定変化を検知して通知
+function checkFriendChanges(prevData, newData){
+  const settings = getNotifySettings();
+
+  Object.entries(newData).forEach(([mid, md]) => {
+    if(mid === uid || !md.shareOn) return;
+    const prev = prevData[mid] || {};
+    const name = md.name;
+
+    // シフト登録通知
+    if(settings.shift){
+      const prevBaito = Object.keys(prev.baito||{}).join(',');
+      const newBaito = Object.keys(md.baito||{}).join(',');
+      if(prevBaito !== newBaito && Object.keys(md.baito||{}).length > Object.keys(prev.baito||{}).length){
+        showLocalNotification('💰 シフト登録', `${name}がバイトを登録したよ！`, 'shift-'+mid);
+      }
+    }
+
+    // 予定登録通知
+    if(settings.event){
+      const prevEvents = Object.keys(prev.events||{}).join(',');
+      const newEvents = Object.keys(md.events||{}).join(',');
+      if(prevEvents !== newEvents && Object.keys(md.events||{}).length > Object.keys(prev.events||{}).length){
+        showLocalNotification('📝 予定登録', `${name}が予定を登録したよ！`, 'event-'+mid);
+      }
+    }
+  });
+}
+
+// バイトリマインダーチェック（アプリ起動時）
+function checkBaitoReminder(){
+  const settings = getNotifySettings();
+  if(!settings.reminder) return;
+
+  const now = new Date();
+  const hour = now.getHours();
+  if(hour < 7 || hour > 10) return; // 朝7〜10時の間だけ
+
+  const todayStr = now.toISOString().slice(0,10);
+  const lastReminder = localStorage.getItem('lastReminderDate');
+  if(lastReminder === todayStr) return;
+
+  const myBaito = getMyBaito(todayStr);
+  if(myBaito){
+    showLocalNotification('⏰ 今日はバイトだよ！', `${myBaito.start}〜${myBaito.end} 頑張ってね！`, 'reminder-today');
+    localStorage.setItem('lastReminderDate', todayStr);
+  }
+}
+
+async function setupNotifications(){
+  checkBaitoReminder();
+  renderNotifySettings();
+}
 const EMOJI_LIST = [
   '🐱','🐶','🐰','🐻','🦊','🐼','🐸','🐧','🐨','🐯','🦁','🐮','🐷','🐙','🦋','🐝',
   '🌸','🌺','🌻','🌹','🍀','🌈','⭐','🌙','☀️','❄️','🔥','💫','🎵','🎨','🎸','🎀',
@@ -1840,7 +2021,7 @@ window.switchPage = function(page, btn){
   btn.classList.add('active');
   if(page==='cal'){ renderCalendar(); renderSummary(); renderGoal(); renderCountdown(); loadWageMain(); }
   if(page==='photo'){ loadPhotos(); }
-  if(page==='settings'){ renderWageDesc(); renderGroupLeaveSection(); }
+  if(page==='settings'){ renderWageDesc(); renderGroupLeaveSection(); renderNotifySettings(); }
   if(page==='group'){
     const isCreator = groupData?.createdBy === uid;
     const btn = document.getElementById('regenCodeBtn');

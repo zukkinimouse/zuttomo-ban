@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zuttomo-ban-v2';
+const CACHE_NAME = 'zuttomo-ban-v3';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -15,11 +15,29 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = e.request.url;
-  // Firebase・Cloudinaryはキャッシュしない（常に最新データを取得）
   if(url.includes('firestore') || url.includes('firebase') || url.includes('cloudinary') || url.includes('gstatic')){
     return;
   }
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
+});
+
+// Push通知受信
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : { title: 'ずっとも板', body: 'お知らせがあるよ！' };
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      vibrate: [200, 100, 200]
+    })
+  );
+});
+
+// 通知タップでアプリを開く
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow('./'));
 });
