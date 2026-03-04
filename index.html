@@ -108,6 +108,10 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; backdrop-filter: blur(4px); }
     .modal-overlay.open { display: flex; align-items: flex-end; }
     .modal-sheet { background: var(--card); border-radius: 24px 24px 0 0; width: 100%; padding: 20px 16px 40px; animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; }
+    .modal-overlay.open { display: flex; align-items: flex-end; }
+    @supports (height: 100dvh) {
+      .modal-overlay { height: 100dvh; }
+    }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
     .modal-title { font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--text); }
@@ -594,7 +598,7 @@
     <div class="modal-title">💴 時給・締め日の設定</div>
     <div class="form-row">
       <label class="form-label">時給（円）</label>
-      <input type="number" class="form-input" id="wageInput" placeholder="1050">
+      <input type="number" class="form-input" id="wageInput" placeholder="1050" inputmode="numeric">
     </div>
     <div class="form-row">
       <label class="form-label">締め日</label>
@@ -607,8 +611,10 @@
         <option value="25">25日締め</option>
       </select>
     </div>
-    <button class="btn btn-primary" onclick="saveWageSettings()">保存 ✓</button>
-    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeWageModal()">キャンセル</button>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeWageModal()">キャンセル</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="saveWageSettings()">保存 ✓</button>
+    </div>
   </div>
 </div>
 
@@ -1640,9 +1646,10 @@ window.saveWageSettings = function(){
   const shime = document.getElementById('shimeBiInput').value;
   localStorage.setItem('wage', wage);
   localStorage.setItem('shimeBi', shime);
+  closeWageModal();
   renderWageDesc();
   renderSummary();
-  closeWageModal();
+  renderCalendar();
   toast('設定を保存したよ！');
 };
 function renderWageDesc(){
@@ -1811,7 +1818,7 @@ window.applyBulkBaito = async function(){
   toast(`${count}日分のバイトを登録したよ！`);
 };
 // ===== 科目カスタム管理 =====
-const DEFAULT_SUBJECTS = ['','','','','','時間割'];
+const DEFAULT_SUBJECTS = ['数学','英語','国語','理科','社会','時間割'];
 
 function getSubjects(){
   const saved = localStorage.getItem('customSubjects');
