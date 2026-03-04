@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ずっとも板</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff8f5;
+      --card: #ffffff;
+      --primary: #ff6b6b;
+      --primary-light: #ffe0e0;
+      --secondary: #ffd93d;
+      --accent: #6bcb77;
+      --accent2: #4d96ff;
+      --text: #2d2d2d;
+      --sub: #999;
+      --border: #f0e8e8;
+      --radius: 16px;
+    }
+    body.dark {
+      --bg: #1a1a2e;
+      --card: #16213e;
+      --primary: #ff6b6b;
+      --primary-light: #3d1a1a;
+      --secondary: #ffd93d;
+      --accent: #6bcb77;
+      --accent2: #4d96ff;
+      --text: #f0f0f0;
+      --sub: #888;
+      --border: #2a2a4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Zen Maru Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+
+    /* ヘッダー */
+    .app-header { background: var(--card); border-bottom: 2px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .app-title { font-size: 18px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
+    .app-title span { color: var(--text); font-size: 13px; font-weight: 700; margin-left: 4px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn { background: var(--bg); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.2s; }
+    .icon-btn:active { transform: scale(0.88); }
+
+    /* ページ */
+    .page { display: none; padding: 12px; animation: fadeUp 0.25s ease; }
+    .page.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ボトムナビ */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 8px; cursor: pointer; border: none; background: none; color: var(--sub); font-size: 9px; font-weight: 700; gap: 3px; transition: 0.2s; }
+    .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item.active .nav-icon { transform: scale(1.15); }
+
+    /* カード */
+    .card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 14px; margin-bottom: 10px; }
+
+    /* 目標ゾーン */
+    .goal-card { background: linear-gradient(135deg, #ff6b6b, #ff8e53); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; color: #fff; position: relative; overflow: hidden; }
+    .goal-card::before { content: '🎯'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 48px; opacity: 0.2; }
+    .goal-label { font-size: 10px; font-weight: 900; opacity: 0.85; margin-bottom: 4px; letter-spacing: 1px; }
+    .goal-text { font-size: 15px; font-weight: 900; line-height: 1.4; min-height: 22px; }
+    .goal-edit-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.25); border: none; border-radius: 8px; padding: 4px 8px; font-size: 10px; font-weight: 900; color: #fff; cursor: pointer; }
+
+    /* 月ナビ */
+    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .month-nav-btn { background: var(--border); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: 0.2s; }
+    .month-nav-btn:active { background: var(--primary); color: #fff; }
+    .month-title { font-size: 18px; font-weight: 900; color: var(--text); }
+
+    /* カレンダー */
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-dow { text-align: center; font-size: 10px; font-weight: 900; padding: 4px 0; color: var(--sub); }
+    .cal-dow:first-child { color: #ff6b6b; }
+    .cal-dow:last-child { color: #4d96ff; }
+    .cal-day { border-radius: 10px; padding: 4px 2px 5px; min-height: 56px; cursor: pointer; transition: 0.15s; position: relative; border: 1.5px solid transparent; }
+    .cal-day:active { transform: scale(0.95); }
+    .cal-day.today { border-color: var(--primary); background: var(--primary-light); }
+    .cal-day.other-month { opacity: 0.3; }
+    .cal-day.sunday .cal-date { color: #ff6b6b; }
+    .cal-day.saturday .cal-date { color: #4d96ff; }
+    .cal-day.holiday .cal-date { color: #ff6b6b; }
+    .cal-date { font-size: 12px; font-weight: 900; text-align: center; line-height: 1; }
+    .cal-badges { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+    .cal-badge { font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 3px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cal-badge.baito { background: #ffe0e0; color: #ff6b6b; }
+    .cal-badge.event { background: #e8f4ff; color: #4d96ff; }
+    .cal-badge.friend-baito { background: #e8faf0; color: #2d9b5a; }
+
+    /* 給料サマリー */
+    .salary-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .summary-card { background: var(--card); border-radius: 12px; border: 1.5px solid var(--border); padding: 12px; text-align: center; }
+    .summary-label { font-size: 9px; font-weight: 900; color: var(--sub); margin-bottom: 4px; }
+    .summary-value { font-size: 20px; font-weight: 900; color: var(--primary); }
+    .summary-unit { font-size: 11px; color: var(--sub); font-weight: 700; }
+
+    /* 日詳細モーダル */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; backdrop-filter: blur(4px); }
+    .modal-overlay.open { display: flex; align-items: flex-end; }
+    .modal-sheet { background: var(--card); border-radius: 24px 24px 0 0; width: 100%; padding: 20px 16px 40px; animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+    .modal-title { font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--text); }
+
+    /* フォーム */
+    .form-row { margin-bottom: 12px; }
+    .form-label { font-size: 11px; font-weight: 900; color: var(--sub); margin-bottom: 4px; display: block; }
+    .form-input { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 14px; outline: none; background: var(--bg); color: var(--text); }
+    .form-input:focus { border-color: var(--primary); }
+    .form-row-inline { display: flex; gap: 8px; }
+    .form-row-inline .form-input { flex: 1; }
+
+    /* ボタン */
+    .btn { border: none; border-radius: 12px; padding: 12px 20px; font-family: inherit; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; border-radius: 10px; width: auto; }
+
+    /* セクションタイトル */
+    .section-title { font-size: 11px; font-weight: 900; color: var(--sub); letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+    /* グループ画面 */
+    .group-code-box { background: linear-gradient(135deg, #4d96ff22, #6bcb7722); border: 2px dashed var(--accent2); border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 12px; }
+    .group-code { font-size: 36px; font-weight: 900; letter-spacing: 8px; color: var(--accent2); }
+    .group-code-label { font-size: 10px; color: var(--sub); font-weight: 700; margin-top: 4px; }
+    .member-list { display: flex; flex-direction: column; gap: 8px; }
+    .member-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg); border-radius: 12px; }
+    .member-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .member-name { font-size: 13px; font-weight: 900; flex: 1; }
+    .member-share-toggle { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--sub); font-weight: 700; }
+    .toggle-switch { width: 36px; height: 20px; background: var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: 0.3s; border: none; }
+    .toggle-switch.on { background: var(--accent); }
+    .toggle-switch::after { content: ''; position: absolute; width: 14px; height: 14px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
+    .toggle-switch.on::after { left: 19px; }
+
+    /* 設定画面 */
+    .settings-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--card); border-radius: 12px; border: 1.5px solid var(--border); margin-bottom: 8px; cursor: pointer; }
+    .settings-icon { font-size: 22px; }
+    .settings-text { flex: 1; }
+    .settings-title { font-size: 13px; font-weight: 900; }
+    .settings-desc { font-size: 10px; color: var(--sub); margin-top: 1px; }
+    .settings-arrow { color: var(--sub); font-size: 16px; }
+
+    /* ローディング */
+    #loadingScreen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 16px; }
+    #loadingScreen.hidden { display: none; }
+    .loading-logo { font-size: 48px; animation: bounce 0.8s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+    .loading-text { font-size: 20px; font-weight: 900; color: var(--primary); }
+    .loading-sub { font-size: 12px; color: var(--sub); }
+
+    /* グループ参加画面 */
+    #joinScreen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 998; padding: 24px; }
+    #joinScreen.hidden { display: none; }
+    .join-logo { font-size: 64px; margin-bottom: 8px; }
+    .join-title { font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 4px; }
+    .join-sub { font-size: 13px; color: var(--sub); margin-bottom: 32px; text-align: center; }
+    .join-card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 20px; width: 100%; max-width: 360px; margin-bottom: 12px; }
+    .join-card-title { font-size: 14px; font-weight: 900; margin-bottom: 12px; color: var(--text); }
+    .name-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: inherit; font-size: 16px; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; }
+    .name-input:focus { border-color: var(--primary); }
+
+    /* トースト */
+    #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: #2d2d2d; color: #fff; border-radius: 20px; padding: 10px 20px; font-size: 13px; font-weight: 700; z-index: 500; opacity: 0; transition: 0.3s; pointer-events: none; white-space: nowrap; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 板書写真 */
+    .photo-upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 12px; }
+    .photo-upload-area:active { background: var(--primary-light); border-color: var(--primary); }
+    .photo-upload-icon { font-size: 36px; margin-bottom: 8px; }
+    .photo-upload-text { font-size: 13px; font-weight: 700; color: var(--sub); }
+    .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .photo-card { background: var(--card); border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; cursor: pointer; transition: 0.2s; }
+    .photo-card:active { transform: scale(0.97); }
+    .photo-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .photo-card-info { padding: 8px 10px; }
+    .photo-card-subject { font-size: 11px; font-weight: 900; color: var(--primary); margin-bottom: 2px; }
+    .photo-card-meta { font-size: 10px; color: var(--sub); }
+    .photo-fullscreen { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; }
+    .photo-fullscreen.open { display: flex; }
+    .photo-fullscreen-header { padding: 48px 16px 12px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.8); }
+    .photo-fullscreen img { flex: 1; object-fit: contain; width: 100%; }
+    .photo-fullscreen-close { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+    .photo-fullscreen-title { color: #fff; font-size: 14px; font-weight: 900; flex: 1; }
+    .subject-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .subject-chip { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; cursor: pointer; border: 1.5px solid var(--border); background: var(--bg); color: var(--sub); transition: 0.15s; }
+    .subject-chip.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .upload-progress { background: var(--border); border-radius: 10px; height: 6px; margin: 8px 0; overflow: hidden; display: none; }
+    .upload-progress-bar { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.3s; width: 0%; }
+    .upload-progress.show { display: block; }
+    .baito-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); border: 1.5px solid var(--primary); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px; font-weight: 900; color: var(--primary); }
+    .baito-tag .remove-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ローディング -->
+<div id="loadingScreen">
+  <div class="loading-logo">📋</div>
+  <div class="loading-text">ずっとも板</div>
+  <div class="loading-sub">読み込み中...</div>
+</div>
+
+<!-- グループ参加/作成画面 -->
+<div id="joinScreen" class="hidden">
+  <div class="join-logo">📋</div>
+  <div class="join-title">ずっとも板</div>
+  <div class="join-sub">友達とバイト・学校生活をまとめて管理</div>
+
+  <div class="join-card">
+    <div class="join-card-title">👤 ニックネームを入力</div>
+    <input type="text" class="name-input" id="nicknameInput" placeholder="例：ゆいか" maxlength="8">
+  </div>
+
+  <div class="join-card">
+    <div class="join-card-title">🆕 新しいグループを作る</div>
+    <button class="btn btn-primary" onclick="createGroup()">グループを作成</button>
+  </div>
+
+  <div class="join-card">
+    <div class="join-card-title">🔑 招待コードで参加</div>
+    <input type="text" class="name-input" id="inviteCodeInput" placeholder="招待コード（6桁）" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;text-align:center;">
+    <button class="btn btn-accent" onclick="joinGroup()">参加する</button>
+  </div>
+</div>
+
+<!-- ヘッダー -->
+<div class="app-header">
+  <div class="app-title">📋 ずっとも板<span id="groupNameLabel"></span></div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+  </div>
+</div>
+
+<!-- トースト -->
+<div id="toast"></div>
+
+<!-- カレンダーページ -->
+<div id="calPage" class="page active">
+  <!-- 今月の目標 -->
+  <div class="goal-card" id="goalCard">
+    <div class="goal-label">📍 今月の目標</div>
+    <div class="goal-text" id="goalText">タップして目標を入力しよう！</div>
+    <button class="goal-edit-btn" onclick="openGoalEdit()">編集</button>
+  </div>
+
+  <!-- 月ナビ -->
+  <div class="month-nav">
+    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="month-title" id="monthTitle"></div>
+    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <!-- カレンダー -->
+  <div class="calendar-grid" id="calendarGrid"></div>
+
+  <!-- 給料サマリー -->
+  <div style="margin-top:12px;">
+    <div class="section-title">💰 今月の給料（概算）</div>
+    <div class="salary-summary">
+      <div class="summary-card">
+        <div class="summary-label">実働時間</div>
+        <div class="summary-value" id="summaryHours">0</div>
+        <div class="summary-unit">時間</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">概算給料</div>
+        <div class="summary-value" id="summaryYen">¥0</div>
+        <div class="summary-unit">円（概算）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- グループページ -->
+<div id="groupPage" class="page">
+  <div class="section-title">🔑 招待コード</div>
+  <div class="group-code-box">
+    <div class="group-code" id="inviteCodeDisplay">------</div>
+    <div class="group-code-label">友達にこのコードを教えてね</div>
+    <button class="btn btn-sm btn-secondary" style="margin-top:10px;" onclick="copyInviteCode()">📋 コピー</button>
+  </div>
+
+  <div class="section-title">👥 メンバー</div>
+  <div class="member-list" id="memberList"></div>
+</div>
+
+<!-- 設定ページ -->
+<div id="settingsPage" class="page">
+  <div class="section-title">⚙️ 設定</div>
+
+  <div class="settings-item" onclick="openWageSettings()">
+    <span class="settings-icon">💴</span>
+    <div class="settings-text">
+      <div class="settings-title">時給・締め日の設定</div>
+      <div class="settings-desc" id="wageDesc">未設定</div>
+    </div>
+    <span class="settings-arrow">›</span>
+  </div>
+
+  <div class="settings-item" onclick="openTimetablePhoto()">
+    <span class="settings-icon">📸</span>
+    <div class="settings-text">
+      <div class="settings-title">時間割写真</div>
+      <div class="settings-desc">タップして呼び出せる時間割写真を設定</div>
+    </div>
+    <span class="settings-arrow">›</span>
+  </div>
+
+  <div class="settings-item" onclick="showTimetable()">
+    <span class="settings-icon">🗓️</span>
+    <div class="settings-text">
+      <div class="settings-title">時間割を見る</div>
+      <div class="settings-desc">登録した時間割写真を表示</div>
+    </div>
+    <span class="settings-arrow">›</span>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <div class="section-title">🚪 グループ</div>
+    <div class="settings-item" onclick="leaveGroup()">
+      <span class="settings-icon">👋</span>
+      <div class="settings-text">
+        <div class="settings-title" style="color:#ff6b6b;">グループを退出</div>
+        <div class="settings-desc">退出するとデータが消えます</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 板書写真ページ -->
+<div id="photoPage" class="page">
+  <label class="photo-upload-area">
+    <div class="photo-upload-icon">📸</div>
+    <div class="photo-upload-text">タップして板書写真をアップロード</div>
+    <input type="file" hidden accept="image/*" id="photoFileInput" onchange="uploadPhoto(event)">
+  </label>
+  <div class="upload-progress" id="uploadProgress">
+    <div class="upload-progress-bar" id="uploadProgressBar"></div>
+  </div>
+  <div class="subject-chips" id="subjectFilter">
+    <div class="subject-chip selected" onclick="filterPhotos('all',this)">すべて</div>
+    <div class="subject-chip" onclick="filterPhotos('数学',this)">数学</div>
+    <div class="subject-chip" onclick="filterPhotos('英語',this)">英語</div>
+    <div class="subject-chip" onclick="filterPhotos('国語',this)">国語</div>
+    <div class="subject-chip" onclick="filterPhotos('理科',this)">理科</div>
+    <div class="subject-chip" onclick="filterPhotos('社会',this)">社会</div>
+    <div class="subject-chip" onclick="filterPhotos('その他',this)">その他</div>
+  </div>
+  <div class="photo-grid" id="photoGrid">
+    <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--sub);font-size:13px;font-weight:700;">
+      📸 まだ写真がないよ<br>上のボタンからアップロードしてね
+    </div>
+  </div>
+</div>
+
+<!-- 写真全画面 -->
+<div class="photo-fullscreen" id="photoFullscreen">
+  <div class="photo-fullscreen-header">
+    <button class="photo-fullscreen-close" onclick="closePhotoFullscreen()">✕</button>
+    <div class="photo-fullscreen-title" id="photoFullscreenTitle"></div>
+    <button style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:900;cursor:pointer;" onclick="deleteCurrentPhoto()">🗑 削除</button>
+  </div>
+  <img id="photoFullscreenImg" src="" alt="" style="flex:1;object-fit:contain;width:100%;">
+</div>
+
+<!-- 科目選択モーダル -->
+<div class="modal-overlay" id="photoSubjectModal" onclick="closePhotoSubjectModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📚 科目を選んでね</div>
+    <div class="subject-chips" style="justify-content:center;">
+      <div class="subject-chip" onclick="selectSubjectAndUpload('数学')">数学</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('英語')">英語</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('国語')">国語</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('理科')">理科</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('社会')">社会</div>
+      <div class="subject-chip" onclick="selectSubjectAndUpload('その他')">その他</div>
+    </div>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closePhotoSubjectModal()">キャンセル</button>
+  </div>
+</div>
+
+<!-- ボトムナビ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchPage('cal',this)">
+    <span class="nav-icon">📅</span>カレンダー
+  </button>
+  <button class="nav-item" onclick="switchPage('photo',this)">
+    <span class="nav-icon">📸</span>板書
+  </button>
+  <button class="nav-item" onclick="switchPage('group',this)">
+    <span class="nav-icon">👥</span>グループ
+  </button>
+  <button class="nav-item" onclick="switchPage('settings',this)">
+    <span class="nav-icon">⚙️</span>設定
+  </button>
+</nav>
+
+<!-- 日詳細モーダル -->
+<div class="modal-overlay" id="dayModal" onclick="closeDayModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="dayModalTitle"></div>
+
+    <!-- バイト入力 -->
+    <div class="section-title">💰 バイト</div>
+    <div id="baitoTagArea" style="min-height:32px;margin-bottom:8px;"></div>
+    <div class="form-row-inline" style="margin-bottom:8px;">
+      <input type="time" class="form-input" id="baitoStart" value="16:00">
+      <span style="line-height:42px;color:var(--sub);font-weight:900;">〜</span>
+      <input type="time" class="form-input" id="baitoEnd" value="21:00">
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:14px;" onclick="saveBaito()">💰 バイトを登録</button>
+
+    <!-- 予定入力 -->
+    <div class="section-title">📝 予定</div>
+    <div class="form-row">
+      <input type="text" class="form-input" id="eventInput" placeholder="予定を入力（テスト・部活など）">
+    </div>
+    <button class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="saveEvent()">予定を保存</button>
+
+    <!-- 友達のバイト表示 -->
+    <div id="friendsBaitoArea"></div>
+
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeDayModal()">閉じる</button>
+  </div>
+</div>
+
+<!-- 目標編集モーダル -->
+<div class="modal-overlay" id="goalModal" onclick="closeGoalModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎯 今月の目標</div>
+    <div class="form-row">
+      <textarea class="form-input" id="goalInput" placeholder="例：今月3万円貯める！テスト全科目80点以上！" rows="3" style="resize:none;"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="saveGoal()">保存 ✓</button>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeGoalModal()">キャンセル</button>
+  </div>
+</div>
+
+<!-- 時給設定モーダル -->
+<div class="modal-overlay" id="wageModal" onclick="closeWageModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💴 時給・締め日の設定</div>
+    <div class="form-row">
+      <label class="form-label">時給（円）</label>
+      <input type="number" class="form-input" id="wageInput" placeholder="1050">
+    </div>
+    <div class="form-row">
+      <label class="form-label">締め日</label>
+      <select class="form-input" id="shimeBiInput">
+        <option value="0">末締め</option>
+        <option value="5">5日締め</option>
+        <option value="10">10日締め</option>
+        <option value="15" selected>15日締め</option>
+        <option value="20">20日締め</option>
+        <option value="25">25日締め</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="saveWageSettings()">保存 ✓</button>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeWageModal()">キャンセル</button>
+  </div>
+</div>
+
+<!-- 時間割写真モーダル -->
+<div class="modal-overlay" id="timetableModal" onclick="closeTimetableModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📸 時間割写真</div>
+    <div id="timetablePhotoArea" style="text-align:center;margin-bottom:14px;"></div>
+    <label class="btn btn-primary" style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
+      📷 写真を設定
+      <input type="file" hidden accept="image/*" onchange="saveTimetablePhoto(event)">
+    </label>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="closeTimetableModal()">閉じる</button>
+  </div>
+</div>
+
+<!-- 時間割全画面 -->
+<div id="timetableFullscreen" style="display:none;position:fixed;inset:0;background:#000;z-index:999;align-items:center;justify-content:center;" onclick="this.style.display='none'">
+  <img id="timetableFullImg" src="" style="max-width:100%;max-height:100%;object-fit:contain;">
+  <div style="position:absolute;bottom:20px;color:rgba(255,255,255,0.6);font-size:12px;font-weight:700;">タップして閉じる</div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPVdNdwF0fhNgwVoqGZVLkplrGIdDxAQg",
+  authDomain: "zuttomo-ban.firebaseapp.com",
+  projectId: "zuttomo-ban",
+  storageBucket: "zuttomo-ban.firebasestorage.app",
+  messagingSenderId: "395617137710",
+  appId: "1:395617137710:web:1eba2681a418e8ce2b9bbf"
+};
+
+const app   = initializeApp(firebaseConfig);
+const db    = getFirestore(app);
+const auth  = getAuth(app);
+
+// ===== 状態管理 =====
+let uid = null;
+let groupId = localStorage.getItem('groupId') || null;
+let myNickname = localStorage.getItem('nickname') || null;
+let groupData = {};
+let memberData = {}; // { uid: { name, baito, shareOn } }
+let currentMonth = new Date();
+let selectedDate = null;
+let darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
+
+// グローバルに公開
+window._db = db;
+window._auth = auth;
+window._getGroupRef = () => doc(db, 'groups', groupId);
+window._getMemberRef = () => doc(db, 'groups', groupId, 'members', uid);
+
+// ===== 初期化 =====
+applyDark();
+onAuthStateChanged(auth, async user => {
+  if(user){
+    uid = user.uid;
+    await bootApp();
+  } else {
+    await signInAnonymously(auth);
+  }
+});
+
+async function bootApp(){
+  if(groupId && myNickname){
+    // グループ確認
+    const gSnap = await getDoc(doc(db, 'groups', groupId));
+    if(gSnap.exists()){
+      await enterApp();
+    } else {
+      // グループが消えてた
+      groupId = null;
+      localStorage.removeItem('groupId');
+      showJoinScreen();
+    }
+  } else {
+    showJoinScreen();
+  }
+}
+
+function showJoinScreen(){
+  document.getElementById('loadingScreen').classList.add('hidden');
+  document.getElementById('joinScreen').classList.remove('hidden');
+}
+
+async function enterApp(){
+  document.getElementById('loadingScreen').classList.remove('hidden');
+  document.getElementById('joinScreen').classList.add('hidden');
+
+  // 自分のメンバードキュメントを確認・作成
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  const mSnap = await getDoc(mRef);
+  if(!mSnap.exists()){
+    await setDoc(mRef, { name: myNickname, shareOn: true, joinedAt: serverTimestamp() });
+  }
+
+  // グループデータをリアルタイム監視
+  onSnapshot(doc(db, 'groups', groupId), snap => {
+    if(snap.exists()) groupData = snap.data();
+    renderGoal();
+  });
+
+  // メンバーデータをリアルタイム監視
+  onSnapshot(collection(db, 'groups', groupId, 'members'), snap => {
+    memberData = {};
+    snap.forEach(d => memberData[d.id] = d.data());
+    renderCalendar();
+    renderMembers();
+    renderSummary();
+  });
+
+  // グループ名表示
+  const gSnap = await getDoc(doc(db, 'groups', groupId));
+  if(gSnap.exists()){
+    const gd = gSnap.data();
+    document.getElementById('groupNameLabel').textContent = ` / ${gd.name||'グループ'}`;
+    document.getElementById('inviteCodeDisplay').textContent = gd.inviteCode || groupId.slice(0,6).toUpperCase();
+  }
+
+  document.getElementById('loadingScreen').classList.add('hidden');
+  renderCalendar();
+  renderWageDesc();
+}
+
+// ===== グループ作成 =====
+window.createGroup = async function(){
+  const name = document.getElementById('nicknameInput').value.trim();
+  if(!name){ toast('ニックネームを入力してね'); return; }
+  myNickname = name;
+  localStorage.setItem('nickname', name);
+
+  const inviteCode = Math.random().toString(36).slice(2,8).toUpperCase();
+  const newGroupId = 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  groupId = newGroupId;
+  localStorage.setItem('groupId', groupId);
+
+  await setDoc(doc(db, 'groups', groupId), {
+    name: name + 'のグループ',
+    inviteCode,
+    createdAt: serverTimestamp(),
+    createdBy: uid,
+    goal: {}
+  });
+
+  document.getElementById('joinScreen').classList.add('hidden');
+  await enterApp();
+};
+
+// ===== グループ参加 =====
+window.joinGroup = async function(){
+  const name = document.getElementById('nicknameInput').value.trim();
+  const code = document.getElementById('inviteCodeInput').value.trim().toUpperCase();
+  if(!name){ toast('ニックネームを入力してね'); return; }
+  if(code.length < 4){ toast('招待コードを入力してね'); return; }
+
+  // 招待コードでグループ検索
+  const { getDocs, query, where } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+  const q = query(collection(db, 'groups'), where('inviteCode', '==', code));
+  const snap = await getDocs(q);
+  if(snap.empty){ toast('招待コードが見つからないよ'); return; }
+
+  myNickname = name;
+  localStorage.setItem('nickname', name);
+  groupId = snap.docs[0].id;
+  localStorage.setItem('groupId', groupId);
+
+  document.getElementById('joinScreen').classList.add('hidden');
+  await enterApp();
+};
+
+// ===== カレンダー =====
+const DOW = ['日','月','火','水','木','金','土'];
+const HOLIDAYS = {
+  '2025-01-01':'元日','2025-01-13':'成人の日','2025-02-11':'建国記念の日',
+  '2025-02-23':'天皇誕生日','2025-03-20':'春分の日','2025-04-29':'昭和の日',
+  '2025-05-03':'憲法記念日','2025-05-04':'みどりの日','2025-05-05':'こどもの日',
+  '2025-07-21':'海の日','2025-08-11':'山の日','2025-09-15':'敬老の日',
+  '2025-09-23':'秋分の日','2025-10-13':'スポーツの日','2025-11-03':'文化の日',
+  '2025-11-23':'勤労感謝の日','2026-01-01':'元日','2026-01-12':'成人の日',
+  '2026-02-11':'建国記念の日','2026-02-23':'天皇誕生日','2026-03-20':'春分の日',
+  '2026-04-29':'昭和の日','2026-05-03':'憲法記念日','2026-05-04':'みどりの日',
+  '2026-05-05':'こどもの日','2026-07-20':'海の日','2026-08-11':'山の日',
+  '2026-09-21':'敬老の日','2026-09-23':'秋分の日','2026-10-12':'スポーツの日',
+  '2026-11-03':'文化の日','2026-11-23':'勤労感謝の日'
+};
+
+function fmtDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+window.changeMonth = function(dir){
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+dir, 1);
+  renderCalendar();
+  renderSummary();
+};
+
+function getMyBaito(dateStr){
+  return memberData[uid]?.baito?.[dateStr] || null;
+}
+function getMyEvent(dateStr){
+  return memberData[uid]?.events?.[dateStr] || null;
+}
+
+function renderCalendar(){
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth();
+  document.getElementById('monthTitle').textContent = `${y}年${m+1}月`;
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let html = DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+
+  // 前月の空白
+  for(let i=0;i<firstDay;i++){
+    const prevDay = new Date(y, m, -firstDay+i+1);
+    html += `<div class="cal-day other-month"><div class="cal-date">${prevDay.getDate()}</div></div>`;
+  }
+
+  for(let day=1;day<=daysInMonth;day++){
+    const d = new Date(y, m, day);
+    const dateStr = fmtDate(d);
+    const dow = d.getDay();
+    const isToday = d.getTime()===today.getTime();
+    const hol = HOLIDAYS[dateStr];
+    const myBaito = getMyBaito(dateStr);
+    const myEvent = getMyEvent(dateStr);
+
+    // 友達のバイト
+    const friendBaitos = Object.entries(memberData)
+      .filter(([mid, md]) => mid !== uid && md.shareOn && md.baito?.[dateStr])
+      .map(([mid, md]) => md.name);
+
+    let cls = 'cal-day';
+    if(isToday) cls += ' today';
+    if(dow===0||hol) cls += ' sunday';
+    else if(dow===6) cls += ' saturday';
+    if(hol) cls += ' holiday';
+
+    let badges = '';
+    if(myBaito) badges += `<div class="cal-badge baito">💰${myBaito.start}〜</div>`;
+    if(myEvent) badges += `<div class="cal-badge event">📝${myEvent.slice(0,5)}</div>`;
+    friendBaitos.forEach(name => {
+      badges += `<div class="cal-badge friend-baito">👤${name}</div>`;
+    });
+
+    html += `<div class="${cls}" onclick="openDayModal('${dateStr}')">
+      <div class="cal-date">${day}</div>
+      <div class="cal-badges">${badges}</div>
+    </div>`;
+  }
+
+  document.getElementById('calendarGrid').innerHTML = html;
+}
+
+// ===== 日詳細モーダル =====
+window.openDayModal = function(dateStr){
+  selectedDate = dateStr;
+  const d = new Date(dateStr+'T00:00:00');
+  document.getElementById('dayModalTitle').textContent =
+    `${d.getMonth()+1}月${d.getDate()}日（${DOW[d.getDay()]}）`;
+
+  const myBaito = getMyBaito(dateStr);
+  if(myBaito){
+    document.getElementById('baitoStart').value = myBaito.start;
+    document.getElementById('baitoEnd').value = myBaito.end;
+    document.getElementById('baitoTagArea').innerHTML =
+      `<div class="baito-tag">💰 ${myBaito.start}〜${myBaito.end}
+        <button class="remove-btn" onclick="removeBaito()">✕</button>
+      </div>`;
+  } else {
+    document.getElementById('baitoStart').value = '16:00';
+    document.getElementById('baitoEnd').value = '21:00';
+    document.getElementById('baitoTagArea').innerHTML = '';
+  }
+
+  const myEvent = getMyEvent(dateStr);
+  document.getElementById('eventInput').value = myEvent || '';
+
+  // 友達のバイト表示
+  const friends = Object.entries(memberData)
+    .filter(([mid, md]) => mid !== uid && md.shareOn && md.baito?.[dateStr]);
+  let friendHtml = '';
+  if(friends.length > 0){
+    friendHtml = `<div class="section-title" style="margin-top:12px;">👥 友達のバイト</div>`;
+    friends.forEach(([mid, md]) => {
+      const b = md.baito[dateStr];
+      friendHtml += `<div style="background:var(--bg);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:13px;font-weight:700;">
+        <span style="color:var(--accent);">● ${md.name}</span> ${b.start}〜${b.end}
+      </div>`;
+    });
+  }
+  document.getElementById('friendsBaitoArea').innerHTML = friendHtml;
+
+  document.getElementById('dayModal').classList.add('open');
+};
+
+window.closeDayModal = function(e){
+  if(!e || e.target===document.getElementById('dayModal')){
+    document.getElementById('dayModal').classList.remove('open');
+  }
+};
+
+window.saveBaito = async function(){
+  const start = document.getElementById('baitoStart').value;
+  const end = document.getElementById('baitoEnd').value;
+  if(!start||!end){ toast('時間を入力してね'); return; }
+
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  const current = memberData[uid] || {};
+  const baito = current.baito || {};
+  baito[selectedDate] = { start, end };
+  await setDoc(mRef, { baito }, { merge: true });
+
+  document.getElementById('baitoTagArea').innerHTML =
+    `<div class="baito-tag">💰 ${start}〜${end}
+      <button class="remove-btn" onclick="removeBaito()">✕</button>
+    </div>`;
+  toast('バイトを登録したよ！');
+};
+
+window.removeBaito = async function(){
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  const current = memberData[uid] || {};
+  const baito = current.baito || {};
+  delete baito[selectedDate];
+  await setDoc(mRef, { baito }, { merge: true });
+  document.getElementById('baitoTagArea').innerHTML = '';
+  toast('バイトを削除したよ');
+};
+
+window.saveEvent = async function(){
+  const val = document.getElementById('eventInput').value.trim();
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  const current = memberData[uid] || {};
+  const events = current.events || {};
+  if(val) events[selectedDate] = val;
+  else delete events[selectedDate];
+  await setDoc(mRef, { events }, { merge: true });
+  toast(val ? '予定を保存したよ！' : '予定を削除したよ');
+  closeDayModal();
+};
+
+// ===== 給料サマリー =====
+function renderSummary(){
+  const wage = parseInt(localStorage.getItem('wage')) || 0;
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+
+  let totalMin = 0;
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr = fmtDate(new Date(y,m,day));
+    const b = getMyBaito(dateStr);
+    if(!b) continue;
+    const [sh,sm] = b.start.split(':').map(Number);
+    const [eh,em] = b.end.split(':').map(Number);
+    let endTotal = eh*60+em;
+    if(endTotal <= sh*60+sm) endTotal += 24*60;
+    totalMin += endTotal - (sh*60+sm);
+  }
+
+  const h = Math.floor(totalMin/60), min = totalMin%60;
+  document.getElementById('summaryHours').textContent = `${h}`;
+  document.getElementById('summaryYen').textContent = wage ? `¥${Math.floor(totalMin/60*wage).toLocaleString()}` : '未設定';
+}
+
+// ===== 目標 =====
+function renderGoal(){
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth()+1;
+  const key = `${y}-${m}`;
+  const goal = groupData.goal?.[uid]?.[key] || '';
+  document.getElementById('goalText').textContent = goal || 'タップして目標を入力しよう！';
+}
+
+window.openGoalEdit = function(){
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth()+1;
+  const key = `${y}-${m}`;
+  const goal = groupData.goal?.[uid]?.[key] || '';
+  document.getElementById('goalInput').value = goal;
+  document.getElementById('goalModal').classList.add('open');
+};
+window.closeGoalModal = function(e){
+  if(!e || e.target===document.getElementById('goalModal')){
+    document.getElementById('goalModal').classList.remove('open');
+  }
+};
+window.saveGoal = async function(){
+  const val = document.getElementById('goalInput').value.trim();
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth()+1;
+  const key = `${y}-${m}`;
+  const gRef = doc(db, 'groups', groupId);
+  const current = groupData.goal || {};
+  if(!current[uid]) current[uid] = {};
+  current[uid][key] = val;
+  await setDoc(gRef, { goal: current }, { merge: true });
+  closeGoalModal();
+  toast('目標を保存したよ！');
+};
+
+// ===== メンバー表示 =====
+function renderMembers(){
+  const list = document.getElementById('memberList');
+  const avatars = ['🐱','🐶','🐰','🐻','🦊','🐼','🐸','🐧'];
+  let html = '';
+  Object.entries(memberData).forEach(([mid, md], i) => {
+    const isMe = mid === uid;
+    const shareOn = md.shareOn !== false;
+    html += `<div class="member-item">
+      <div class="member-avatar">${avatars[i % avatars.length]}</div>
+      <div class="member-name">${md.name}${isMe?' (自分)':''}</div>
+      ${isMe ? `
+        <div class="member-share-toggle">
+          バイト共有
+          <button class="toggle-switch ${shareOn?'on':''}" onclick="toggleShare()" id="shareToggle"></button>
+        </div>` : `<div style="font-size:10px;color:var(--sub);">バイト共有${shareOn?'ON':'OFF'}</div>`}
+    </div>`;
+  });
+  list.innerHTML = html || '<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px;">メンバーがいません</div>';
+}
+
+window.toggleShare = async function(){
+  const current = memberData[uid]?.shareOn !== false;
+  const mRef = doc(db, 'groups', groupId, 'members', uid);
+  await setDoc(mRef, { shareOn: !current }, { merge: true });
+  toast(!current ? 'バイトを共有するよ' : 'バイト共有をOFFにしたよ');
+};
+
+// ===== 設定 =====
+window.openWageSettings = function(){
+  const wage = localStorage.getItem('wage') || '';
+  const shime = localStorage.getItem('shimeBi') || '15';
+  document.getElementById('wageInput').value = wage;
+  document.getElementById('shimeBiInput').value = shime;
+  document.getElementById('wageModal').classList.add('open');
+};
+window.closeWageModal = function(e){
+  if(!e || e.target===document.getElementById('wageModal')){
+    document.getElementById('wageModal').classList.remove('open');
+  }
+};
+window.saveWageSettings = function(){
+  const wage = document.getElementById('wageInput').value;
+  const shime = document.getElementById('shimeBiInput').value;
+  localStorage.setItem('wage', wage);
+  localStorage.setItem('shimeBi', shime);
+  renderWageDesc();
+  renderSummary();
+  closeWageModal();
+  toast('設定を保存したよ！');
+};
+function renderWageDesc(){
+  const wage = localStorage.getItem('wage');
+  const shime = localStorage.getItem('shimeBi') || '15';
+  const shimeLabel = shime==='0' ? '末締め' : `${shime}日締め`;
+  document.getElementById('wageDesc').textContent =
+    wage ? `時給¥${wage} / ${shimeLabel}` : '未設定';
+}
+
+window.openTimetablePhoto = function(){
+  const img = localStorage.getItem('timetablePhoto');
+  const area = document.getElementById('timetablePhotoArea');
+  area.innerHTML = img
+    ? `<img src="${img}" style="max-width:100%;border-radius:10px;margin-bottom:10px;">`
+    : '<div style="color:var(--sub);font-size:12px;padding:16px;">写真が設定されていません</div>';
+  document.getElementById('timetableModal').classList.add('open');
+};
+window.closeTimetableModal = function(e){
+  if(!e || e.target===document.getElementById('timetableModal')){
+    document.getElementById('timetableModal').classList.remove('open');
+  }
+};
+window.saveTimetablePhoto = function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      localStorage.setItem('timetablePhoto', ev.target.result);
+      openTimetablePhoto();
+      toast('時間割写真を設定したよ！');
+    } catch { toast('画像が大きすぎるかも'); }
+  };
+  r.readAsDataURL(file);
+};
+window.showTimetable = function(){
+  const img = localStorage.getItem('timetablePhoto');
+  if(!img){ toast('まず時間割写真を設定してね'); return; }
+  document.getElementById('timetableFullImg').src = img;
+  document.getElementById('timetableFullscreen').style.display = 'flex';
+};
+
+window.leaveGroup = function(){
+  if(!confirm('グループを退出しますか？\nローカルのデータも削除されます。')) return;
+  localStorage.clear();
+  location.reload();
+};
+
+// ===== 板書写真共有 =====
+const CLOUDINARY_CLOUD = 'dspdhssqp';
+const CLOUDINARY_PRESET = 'zuttomo-ban';
+let pendingFile = null;
+let currentPhotoId = null;
+let allPhotos = [];
+let currentFilter = 'all';
+
+window.uploadPhoto = function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  pendingFile = file;
+  // 科目選択モーダルを開く
+  document.getElementById('photoSubjectModal').classList.add('open');
+  e.target.value = '';
+};
+
+window.closePhotoSubjectModal = function(e){
+  if(!e || e.target===document.getElementById('photoSubjectModal')){
+    document.getElementById('photoSubjectModal').classList.remove('open');
+    pendingFile = null;
+  }
+};
+
+window.selectSubjectAndUpload = async function(subject){
+  document.getElementById('photoSubjectModal').classList.remove('open');
+  if(!pendingFile) return;
+
+  // プログレスバー表示
+  const prog = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadProgressBar');
+  prog.classList.add('show');
+  bar.style.width = '0%';
+
+  try {
+    // Cloudinaryにアップロード
+    const formData = new FormData();
+    formData.append('file', pendingFile);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', `zuttomo-ban/${groupId}`);
+
+    // XHRで進捗取得
+    const url = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = ev => {
+        if(ev.lengthComputable){
+          bar.style.width = Math.round(ev.loaded/ev.total*90) + '%';
+        }
+      };
+      xhr.onload = () => {
+        const res = JSON.parse(xhr.responseText);
+        if(res.secure_url) resolve(res.secure_url);
+        else reject(new Error('アップロード失敗'));
+      };
+      xhr.onerror = () => reject(new Error('ネットワークエラー'));
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`);
+      xhr.send(formData);
+    });
+
+    bar.style.width = '100%';
+
+    // FirestoreにメタデータをURL付きで保存
+    const { addDoc, collection: col, serverTimestamp: sts } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+    await addDoc(col(window._db, 'groups', groupId, 'photos'), {
+      url,
+      subject,
+      uploadedBy: uid,
+      uploaderName: myNickname,
+      createdAt: sts()
+    });
+
+    toast(`${subject}の板書を共有したよ！`);
+    await loadPhotos();
+  } catch(err) {
+    toast('アップロードに失敗したよ: ' + err.message);
+  } finally {
+    setTimeout(() => prog.classList.remove('show'), 800);
+    pendingFile = null;
+  }
+};
+
+async function loadPhotos(){
+  if(!groupId) return;
+  const { getDocs, collection: col, orderBy, query } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+  const q = query(col(window._db, 'groups', groupId, 'photos'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  allPhotos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderPhotoGrid();
+}
+
+function renderPhotoGrid(){
+  const grid = document.getElementById('photoGrid');
+  const filtered = currentFilter === 'all'
+    ? allPhotos
+    : allPhotos.filter(p => p.subject === currentFilter);
+
+  if(filtered.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--sub);font-size:13px;font-weight:700;">
+      📸 まだ写真がないよ<br>上のボタンからアップロードしてね
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => {
+    const d = p.createdAt?.toDate ? p.createdAt.toDate() : new Date();
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} ${p.uploaderName}`;
+    return `<div class="photo-card" onclick="openPhotoFullscreen('${p.id}','${p.url}','${p.subject} - ${dateStr}','${p.uploadedBy}')">
+      <img src="${p.url}" alt="${p.subject}" loading="lazy">
+      <div class="photo-card-info">
+        <div class="photo-card-subject">${p.subject}</div>
+        <div class="photo-card-meta">${dateStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.filterPhotos = function(subject, el){
+  currentFilter = subject;
+  document.querySelectorAll('#subjectFilter .subject-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  renderPhotoGrid();
+};
+
+window.openPhotoFullscreen = function(id, url, title, uploaderId){
+  currentPhotoId = { id, uploaderId };
+  document.getElementById('photoFullscreenImg').src = url;
+  document.getElementById('photoFullscreenTitle').textContent = title;
+  document.getElementById('photoFullscreen').classList.add('open');
+};
+window.closePhotoFullscreen = function(){
+  document.getElementById('photoFullscreen').classList.remove('open');
+  currentPhotoId = null;
+};
+
+window.deleteCurrentPhoto = async function(){
+  if(!currentPhotoId) return;
+  if(currentPhotoId.uploaderId !== uid){ toast('自分がアップした写真だけ削除できるよ'); return; }
+  if(!confirm('この写真を削除しますか？')) return;
+
+  const { deleteDoc, doc: fdoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+  await deleteDoc(fdoc(window._db, 'groups', groupId, 'photos', currentPhotoId.id));
+  closePhotoFullscreen();
+  await loadPhotos();
+  toast('削除したよ');
+};
+
+// ===== ページ切替 =====
+window.switchPage = function(page, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(page+'Page').classList.add('active');
+  btn.classList.add('active');
+  if(page==='cal'){ renderCalendar(); renderSummary(); renderGoal(); }
+  if(page==='photo'){ loadPhotos(); }
+};
+
+// ===== 招待コードコピー =====
+window.copyInviteCode = function(){
+  const code = document.getElementById('inviteCodeDisplay').textContent;
+  navigator.clipboard.writeText(code).then(()=>toast('コピーしたよ！'));
+};
+
+// ===== ダークモード =====
+function applyDark(){
+  document.body.classList.toggle('dark', darkMode);
+  const btn = document.getElementById('darkBtn');
+  if(btn) btn.textContent = darkMode ? '☀️' : '🌙';
+}
+window.toggleDark = function(){
+  darkMode = !darkMode;
+  localStorage.setItem('darkMode', darkMode);
+  applyDark();
+};
+
+// ===== トースト =====
+let toastTimer;
+window.toast = function(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+};
+
+</script>
+</body>
+</html>
