@@ -793,6 +793,7 @@ async function enterApp(){
 
   // メンバーデータをリアルタイム監視
   let prevMemberData = {};
+  let memberDataInitialized = false;
   onSnapshot(collection(db, 'groups', groupId, 'members'), snap => {
     const newData = {};
     snap.forEach(d => newData[d.id] = d.data());
@@ -807,9 +808,13 @@ async function enterApp(){
     }
 
     buildMemberColorMap();
-    checkFriendChanges(prevMemberData, newData);
+    // 初回ロード時は通知しない（既存データを新規扱いしないため）
+    if(memberDataInitialized){
+      checkFriendChanges(prevMemberData, newData);
+    }
     prevMemberData = {...newData};
     memberData = newData;
+    memberDataInitialized = true;
     buildMemberColorMap();
     renderCalendar();
     renderMembers();
@@ -1403,13 +1408,15 @@ function renderMembers(){
     const shareOn = md.shareOn !== false;
     const avatar = md.avatar || DEFAULT_AVATARS[i % DEFAULT_AVATARS.length];
     const isGroupCreator = groupData?.createdBy === mid;
+    const memberColor = getMemberColor(mid);
     html += `<div class="member-item">
-      <div class="member-avatar" ${isMe ? 'onclick="openEmojiPicker()" style="cursor:pointer;" title="タップでアイコン変更"' : ''}>
+      <div class="member-avatar" style="background:linear-gradient(135deg, ${memberColor}, ${memberColor}99);${isMe?'cursor:pointer;':''}" ${isMe ? 'onclick="openEmojiPicker()" title="タップでアイコン変更"' : ''}>
         ${avatar}${isMe ? '<span style="position:absolute;bottom:-2px;right:-2px;font-size:10px;background:var(--primary);color:#fff;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;line-height:1;">✏️</span>' : ''}
       </div>
       <div class="member-name" style="flex:1;">
-        ${md.name}${isMe?' (自分)':''}
+        ${md.name}${isMe?` <span style="font-size:10px;color:var(--sub);">(自分)</span>`:''}
         ${isGroupCreator ? '<span style="font-size:9px;background:var(--primary);color:#fff;border-radius:4px;padding:1px 5px;margin-left:4px;">作成者</span>' : ''}
+        ${isMe ? `<div style="font-size:10px;color:${memberColor};font-weight:900;margin-top:2px;">● カレンダーでのあなたの色</div>` : ''}
       </div>
       ${isMe ? `
         <div class="member-share-toggle">
