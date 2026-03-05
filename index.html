@@ -248,31 +248,31 @@
     .chat-fab { position: fixed; bottom: 90px; right: 16px; width: 52px; height: 52px; background: var(--accent2); border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 150; box-shadow: 0 4px 16px rgba(77,150,255,0.4); display: none; align-items: center; justify-content: center; transition: 0.2s; }
     .chat-fab.visible { display: flex; }
     .chat-fab:active { transform: scale(0.9); }
-    .chat-fab .chat-fab-badge { position: absolute; top: -2px; right: -2px; background: var(--primary); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; display: none; }
+    .chat-fab .chat-fab-badge { position: absolute; top: -2px; right: -2px; background: var(--primary); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900; display: none; align-items: center; justify-content: center; }
     .chat-fab .chat-fab-badge.show { display: flex; }
-    .chat-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-radius: 24px 24px 0 0; z-index: 250; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -4px 24px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 70vh; }
+    .chat-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-radius: 24px 24px 0 0; z-index: 250; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -4px 24px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 72vh; }
     .chat-panel.open { transform: translateY(0); }
-    .chat-panel-header { padding: 12px 16px 8px; border-bottom: 1.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .chat-panel-header { padding: 12px 16px 10px; border-bottom: 1.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .chat-panel-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 8px; }
     .chat-panel-title { font-size: 14px; font-weight: 900; flex: 1; color: var(--text); }
     .chat-panel-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--sub); padding: 0; line-height: 1; }
-    .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .chat-msg { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 12px 12px 4px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { display: flex; gap: 8px; align-items: flex-end; max-width: 100%; }
     .chat-msg.me { flex-direction: row-reverse; }
-    .chat-msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-    .chat-msg-bubble { max-width: 68%; padding: 8px 12px; border-radius: 16px; font-size: 13px; font-weight: 700; line-height: 1.5; word-break: break-word; }
-    .chat-msg.me .chat-msg-bubble { background: var(--accent2); color: #fff; border-radius: 16px 16px 4px 16px; }
-    .chat-msg.other .chat-msg-bubble { background: var(--bg); color: var(--text); border-radius: 16px 16px 16px 4px; }
-    .chat-msg-name { font-size: 9px; font-weight: 900; margin-bottom: 2px; }
-    .chat-msg.me .chat-msg-name { text-align: right; }
-    .chat-msg-meta { display: flex; flex-direction: column; }
+    .chat-msg-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; align-self: flex-end; }
+    .chat-msg-meta { display: flex; flex-direction: column; max-width: calc(100% - 80px); }
     .chat-msg.me .chat-msg-meta { align-items: flex-end; }
-    .chat-msg-time { font-size: 9px; color: var(--sub); margin-top: 2px; }
-    .chat-input-row { padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); border-top: 1.5px solid var(--border); display: flex; gap: 8px; align-items: center; flex-shrink: 0; background: var(--card); border-radius: 0 0 0 0; }
-    .chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; font-family: inherit; font-size: 14px; outline: none; background: var(--bg); color: var(--text); }
+    .chat-msg.other .chat-msg-meta { align-items: flex-start; }
+    .chat-msg-name { font-size: 10px; font-weight: 900; margin-bottom: 3px; padding: 0 4px; }
+    .chat-msg-bubble { display: inline-block; max-width: 100%; padding: 9px 13px; border-radius: 18px; font-size: 14px; font-weight: 700; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
+    .chat-msg.me .chat-msg-bubble { background: var(--accent2); color: #fff; border-radius: 18px 18px 4px 18px; }
+    .chat-msg.other .chat-msg-bubble { background: var(--bg); color: var(--text); border-radius: 18px 18px 18px 4px; border: 1.5px solid var(--border); }
+    .chat-msg-time { font-size: 9px; color: var(--sub); margin-top: 3px; padding: 0 4px; }
+    .chat-input-row { padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); border-top: 1.5px solid var(--border); display: flex; gap: 8px; align-items: center; flex-shrink: 0; background: var(--card); }
+    .chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: 22px; padding: 9px 16px; font-family: inherit; font-size: 14px; outline: none; background: var(--bg); color: var(--text); }
     .chat-input:focus { border-color: var(--accent2); }
-    .chat-send-btn { background: var(--accent2); border: none; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s; }
-    .chat-send-btn:active { transform: scale(0.88); }
+    .chat-send-btn { background: var(--accent2); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s; }
+    .chat-send-btn:active { transform: scale(0.88); opacity: 0.8; }
     .chat-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 249; display: none; }
     .chat-overlay.open { display: block; }
 
@@ -564,6 +564,7 @@
   </div>
   <div class="chat-panel-header">
     <div class="chat-panel-title">💬 グループチャット</div>
+    <button id="chatClearBtn" onclick="clearAllChats()" style="display:none;background:none;border:none;font-size:11px;font-weight:900;color:var(--sub);cursor:pointer;padding:4px 8px;">🗑 全削除</button>
     <button class="chat-panel-close" onclick="closeChat()">✕</button>
   </div>
   <div class="chat-messages" id="chatMessages">
@@ -1811,8 +1812,8 @@ function renderWageDesc(){
   const wage = localStorage.getItem('wage');
   const shime = localStorage.getItem('shimeBi') || '15';
   const shimeLabel = shime==='0' ? '末締め' : `${shime}日締め`;
-  document.getElementById('wageDesc').textContent =
-    wage ? `時給¥${wage} / ${shimeLabel}` : '未設定';
+  const el = document.getElementById('wageDesc');
+  if(el) el.textContent = wage ? `時給¥${wage} / ${shimeLabel}` : '未設定';
 }
 
 window.openTimetablePhoto = function(){
@@ -2250,12 +2251,20 @@ function setupChat(){
         }
       }
     }
+  }, err => {
+    console.error('チャット監視エラー:', err.code, err.message);
+    toast('チャットの読み込みに失敗: ' + err.code);
   });
 }
 
 function renderChatMessages(msgs){
   const container = document.getElementById('chatMessages');
   if(!container) return;
+
+  // 作成者なら全削除ボタンを表示
+  const clearBtn = document.getElementById('chatClearBtn');
+  if(clearBtn) clearBtn.style.display = groupData?.createdBy === uid ? 'block' : 'none';
+
   if(msgs.length === 0){
     container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--sub);font-size:12px;font-weight:700;">まだメッセージがないよ👋</div>';
     return;
@@ -2265,7 +2274,11 @@ function renderChatMessages(msgs){
     const color = getMemberColor(msg.senderId);
     const avatar = memberData[msg.senderId]?.avatar || '👤';
     const time = msg.createdAt?.toDate ? formatNoticeTime(msg.createdAt.toDate().toISOString()) : '';
-    return `<div class="chat-msg ${isMe ? 'me' : 'other'}">
+    return `<div class="chat-msg ${isMe ? 'me' : 'other'}" data-id="${msg.id}" data-sender="${msg.senderId}"
+      oncontextmenu="event.preventDefault();chatLongPress('${msg.id}','${msg.senderId}')"
+      ontouchstart="startChatPress('${msg.id}','${msg.senderId}')"
+      ontouchend="cancelChatPress()"
+      ontouchmove="cancelChatPress()">
       <div class="chat-msg-avatar" style="background:${color}22;">${avatar}</div>
       <div class="chat-msg-meta">
         ${!isMe ? `<div class="chat-msg-name" style="color:${color};">${msg.senderName}</div>` : ''}
@@ -2274,13 +2287,49 @@ function renderChatMessages(msgs){
       </div>
     </div>`;
   }).join('');
-  // 最新メッセージへスクロール
   container.scrollTop = container.scrollHeight;
 }
 
 function escapeHtml(str){
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// 長押し削除（自分のメッセージのみ）
+let chatPressTimer = null;
+window.startChatPress = function(msgId, senderId){
+  if(senderId !== uid) return;
+  chatPressTimer = setTimeout(() => chatLongPress(msgId, senderId), 600);
+};
+window.cancelChatPress = function(){
+  clearTimeout(chatPressTimer);
+};
+window.chatLongPress = function(msgId, senderId){
+  if(senderId !== uid){ toast('自分のメッセージだけ削除できるよ'); return; }
+  if(!confirm('このメッセージを削除しますか？')) return;
+  deleteChatMsg(msgId);
+};
+async function deleteChatMsg(msgId){
+  try {
+    const { deleteDoc, doc: fdoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+    await deleteDoc(fdoc(db, 'groups', groupId, 'chats', msgId));
+  } catch(e){
+    toast('削除に失敗したよ: ' + e.message);
+  }
+}
+
+// 全削除（作成者のみ）
+window.clearAllChats = async function(){
+  if(groupData?.createdBy !== uid){ toast('作成者だけ全削除できるよ'); return; }
+  if(!confirm('チャットを全件削除しますか？\nこの操作は取り消せません。')) return;
+  try {
+    const { getDocs, collection: col, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+    const snap = await getDocs(col(db, 'groups', groupId, 'chats'));
+    for(const d of snap.docs) await deleteDoc(d.ref);
+    toast('チャットを全削除したよ');
+  } catch(e){
+    toast('削除に失敗したよ: ' + e.message);
+  }
+};
 
 window.openChat = function(){
   isChatOpen = true;
@@ -2316,6 +2365,7 @@ window.sendChatMessage = async function(){
       createdAt: serverTimestamp()
     });
   } catch(e){
+    console.error('チャット送信エラー:', e.code, e.message);
     toast('送信に失敗したよ: ' + e.message);
   }
 };
