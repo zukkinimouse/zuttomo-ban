@@ -244,6 +244,38 @@
       --member-color-4: #c77dff;
     }
 
+    /* チャット */
+    .chat-fab { position: fixed; bottom: 90px; right: 16px; width: 52px; height: 52px; background: var(--accent2); border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 150; box-shadow: 0 4px 16px rgba(77,150,255,0.4); display: none; align-items: center; justify-content: center; transition: 0.2s; }
+    .chat-fab.visible { display: flex; }
+    .chat-fab:active { transform: scale(0.9); }
+    .chat-fab .chat-fab-badge { position: absolute; top: -2px; right: -2px; background: var(--primary); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; display: none; }
+    .chat-fab .chat-fab-badge.show { display: flex; }
+    .chat-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-radius: 24px 24px 0 0; z-index: 250; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -4px 24px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 70vh; }
+    .chat-panel.open { transform: translateY(0); }
+    .chat-panel-header { padding: 12px 16px 8px; border-bottom: 1.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .chat-panel-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 8px; }
+    .chat-panel-title { font-size: 14px; font-weight: 900; flex: 1; color: var(--text); }
+    .chat-panel-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--sub); padding: 0; line-height: 1; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .chat-msg { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-msg.me { flex-direction: row-reverse; }
+    .chat-msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .chat-msg-bubble { max-width: 68%; padding: 8px 12px; border-radius: 16px; font-size: 13px; font-weight: 700; line-height: 1.5; word-break: break-word; }
+    .chat-msg.me .chat-msg-bubble { background: var(--accent2); color: #fff; border-radius: 16px 16px 4px 16px; }
+    .chat-msg.other .chat-msg-bubble { background: var(--bg); color: var(--text); border-radius: 16px 16px 16px 4px; }
+    .chat-msg-name { font-size: 9px; font-weight: 900; margin-bottom: 2px; }
+    .chat-msg.me .chat-msg-name { text-align: right; }
+    .chat-msg-meta { display: flex; flex-direction: column; }
+    .chat-msg.me .chat-msg-meta { align-items: flex-end; }
+    .chat-msg-time { font-size: 9px; color: var(--sub); margin-top: 2px; }
+    .chat-input-row { padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); border-top: 1.5px solid var(--border); display: flex; gap: 8px; align-items: center; flex-shrink: 0; background: var(--card); border-radius: 0 0 0 0; }
+    .chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; font-family: inherit; font-size: 14px; outline: none; background: var(--bg); color: var(--text); }
+    .chat-input:focus { border-color: var(--accent2); }
+    .chat-send-btn { background: var(--accent2); border: none; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s; }
+    .chat-send-btn:active { transform: scale(0.88); }
+    .chat-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 249; display: none; }
+    .chat-overlay.open { display: block; }
+
     /* ハンバーガーメニュー */
     .hamburger-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
     .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--card); z-index: 300; transition: right 0.3s ease; box-shadow: -4px 0 20px rgba(0,0,0,0.15); overflow-y: auto; }
@@ -519,6 +551,30 @@
   </div>
 </div>
 
+<!-- チャットFABボタン -->
+<button class="chat-fab" id="chatFab" onclick="openChat()">💬<span class="chat-fab-badge" id="chatFabBadge"></span></button>
+
+<!-- チャットオーバーレイ -->
+<div class="chat-overlay" id="chatOverlay" onclick="closeChat()"></div>
+
+<!-- チャットパネル -->
+<div class="chat-panel" id="chatPanel">
+  <div style="padding: 8px 16px 0;">
+    <div class="chat-panel-handle"></div>
+  </div>
+  <div class="chat-panel-header">
+    <div class="chat-panel-title">💬 グループチャット</div>
+    <button class="chat-panel-close" onclick="closeChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div style="text-align:center;padding:20px;color:var(--sub);font-size:12px;font-weight:700;">まだメッセージがないよ👋</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="メッセージを入力..." maxlength="200" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}">
+    <button class="chat-send-btn" onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
 <!-- ボトムナビ -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="switchPage('cal',this)">
@@ -696,7 +752,7 @@
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, serverTimestamp, updateDoc, deleteField }
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, serverTimestamp, updateDoc, deleteField, addDoc, orderBy, query, limit }
   from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
@@ -852,6 +908,7 @@ async function enterApp(){
   renderWageDesc();
   renderGroupLeaveSection();
   loadWageMain();
+  setupChat();
   // 作成者なら招待コード更新ボタンを表示
   const regenBtn = document.getElementById('regenCodeBtn');
   if(regenBtn && groupData?.createdBy === uid) regenBtn.style.display = 'block';
@@ -2169,6 +2226,100 @@ window.deleteCurrentPhoto = async function(){
   toast('削除したよ');
 };
 
+// ===== チャット =====
+let chatUnsubscribe = null;
+let chatUnreadCount = 0;
+let isChatOpen = false;
+
+function setupChat(){
+  if(!groupId) return;
+  const q = query(collection(db, 'groups', groupId, 'chats'), orderBy('createdAt', 'asc'), limit(100));
+  chatUnsubscribe = onSnapshot(q, snap => {
+    const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderChatMessages(msgs);
+    // 新着バッジ（チャットが閉じているとき）
+    if(!isChatOpen){
+      const changes = snap.docChanges().filter(c => c.type === 'added');
+      const newFromOthers = changes.filter(c => c.doc.data().senderId !== uid);
+      if(newFromOthers.length > 0){
+        chatUnreadCount += newFromOthers.length;
+        const badge = document.getElementById('chatFabBadge');
+        if(badge){
+          badge.textContent = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
+          badge.classList.add('show');
+        }
+      }
+    }
+  });
+}
+
+function renderChatMessages(msgs){
+  const container = document.getElementById('chatMessages');
+  if(!container) return;
+  if(msgs.length === 0){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--sub);font-size:12px;font-weight:700;">まだメッセージがないよ👋</div>';
+    return;
+  }
+  container.innerHTML = msgs.map(msg => {
+    const isMe = msg.senderId === uid;
+    const color = getMemberColor(msg.senderId);
+    const avatar = memberData[msg.senderId]?.avatar || '👤';
+    const time = msg.createdAt?.toDate ? formatNoticeTime(msg.createdAt.toDate().toISOString()) : '';
+    return `<div class="chat-msg ${isMe ? 'me' : 'other'}">
+      <div class="chat-msg-avatar" style="background:${color}22;">${avatar}</div>
+      <div class="chat-msg-meta">
+        ${!isMe ? `<div class="chat-msg-name" style="color:${color};">${msg.senderName}</div>` : ''}
+        <div class="chat-msg-bubble">${escapeHtml(msg.text)}</div>
+        <div class="chat-msg-time">${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+  // 最新メッセージへスクロール
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.openChat = function(){
+  isChatOpen = true;
+  chatUnreadCount = 0;
+  const badge = document.getElementById('chatFabBadge');
+  if(badge) badge.classList.remove('show');
+  document.getElementById('chatPanel').classList.add('open');
+  document.getElementById('chatOverlay').classList.add('open');
+  // メッセージを最下部へ
+  setTimeout(() => {
+    const c = document.getElementById('chatMessages');
+    if(c) c.scrollTop = c.scrollHeight;
+    document.getElementById('chatInput')?.focus();
+  }, 320);
+};
+
+window.closeChat = function(){
+  isChatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('chatOverlay').classList.remove('open');
+};
+
+window.sendChatMessage = async function(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  try {
+    await addDoc(collection(db, 'groups', groupId, 'chats'), {
+      text,
+      senderId: uid,
+      senderName: myNickname || memberData[uid]?.name || 'だれか',
+      createdAt: serverTimestamp()
+    });
+  } catch(e){
+    toast('送信に失敗したよ: ' + e.message);
+  }
+};
+
 // ===== ページ切替 =====
 // ===== メンバーカラー =====
 const MEMBER_COLORS = ['#ff6b6b','#4d96ff','#6bcb77','#ffd93d','#c77dff'];
@@ -2348,6 +2499,9 @@ window.switchPage = function(page, btn){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById(page+'Page').classList.add('active');
   btn.classList.add('active');
+  // 板書ページのときだけチャットFABを表示
+  const fab = document.getElementById('chatFab');
+  if(fab) fab.classList.toggle('visible', page === 'photo');
   if(page==='cal'){ renderCalendar(); renderSummary(); renderGoal(); renderCountdown(); loadWageMain(); }
   if(page==='photo'){ loadPhotos(); }
   if(page==='notices'){ renderNotices(); }
